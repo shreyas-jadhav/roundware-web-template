@@ -62,8 +62,8 @@ let config: IConfig = {
 			neLng: 43,
 		},
 		assetTypeDisplay: ['audio', 'photo', 'text'],
-		
-		assetDisplay: 'circle'
+
+		assetDisplay: 'polygon',
 	},
 
 	ui: {
