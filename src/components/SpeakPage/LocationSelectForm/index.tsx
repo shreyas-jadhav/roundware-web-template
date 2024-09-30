@@ -76,9 +76,28 @@ const LocationSelectForm = () => {
 
 	useEffect(() => {
 		if (draftRecording.tags.length === 0 && config.speak.allowSpeakTags === true) {
-			history.replace('/speak/tags/0');
+			history.replace({
+				pathname: '/speak/tags/0',
+				search: history.location.search,
+			});
 		}
 	}, [draftRecording.tags]);
+
+	useEffect(() => {
+		const searchParams = new URLSearchParams(history.location.search);
+		const lat = searchParams.get('lat');
+		const lng = searchParams.get('lng');
+		if (lat && lng) {
+			draftRecording.setLocation({
+				latitude: parseFloat(lat),
+				longitude: parseFloat(lng),
+			});
+			history.push({
+				pathname: '/speak/recording',
+				search: history.location.search,
+			});
+		}
+	}, [history.location.search]);
 
 	if (!draftRecording.location.latitude || !draftRecording.location.longitude) {
 		return null;
@@ -172,7 +191,10 @@ const LocationSelectForm = () => {
 					color='primary'
 					variant={'contained'}
 					onClick={() => {
-						history.push('/speak/recording');
+						history.push({
+							pathname: '/speak/recording',
+							search: history.location.search,
+						});
 						if (roundware.mixer && roundware.mixer.playing) {
 							roundware.mixer.toggle();
 						}

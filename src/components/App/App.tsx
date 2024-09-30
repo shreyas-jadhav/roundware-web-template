@@ -21,7 +21,7 @@ import { LandingPage } from '../LandingPage';
 import ListenPage from '../ListenPage';
 import ListenDrawer from '../ListenPage/ListenDrawer';
 import RoundwareMixerControl from '../ListenPage/RoundwareMixerControl';
-import SpeakPage from '../SpeakPage';
+import SpeakPage from '../SpeakPage/SpeakPage';
 import UserConfirmation from '../UserConfirmation';
 import DrawerSensitiveWrapper from './DrawerSensitiveWrapper';
 import ShareButton from './ShareButton';
@@ -88,10 +88,14 @@ export const App = () => {
 							<Stack spacing={1} direction='row'>
 								<ShareButton />
 								<Route path='/listen'>
-									{roundware?.project?.data?.speak_enabled && (
-										<Link to={`/speak`}>
-											<SpeakButton />
-										</Link>
+									{config.speak.recordingMethod === 'standard' ? (
+										roundware?.project?.data?.speak_enabled && (
+											<Link to={`/speak`}>
+												<SpeakButton />
+											</Link>
+										)
+									) : (
+										<div />
 									)}
 								</Route>
 							</Stack>

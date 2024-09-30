@@ -37,6 +37,7 @@ let config: IConfig = {
 		allowText: true,
 		allowSpeakTags: true,
 		defaultSpeakTags: [],
+		recordingMethod: 'looping',
 	},
 
 	map: {

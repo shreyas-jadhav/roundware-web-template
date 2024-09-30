@@ -410,7 +410,10 @@ const CreateRecordingForm = () => {
 									color={'primary'}
 									onClick={() => {
 										draftRecording.reset();
-										history.push('/speak');
+										history.push({
+											pathname: '/speak',
+											search: history.location.search,
+										});
 									}}
 									startIcon={<Create />}
 								>
