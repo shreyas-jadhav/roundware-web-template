@@ -1,6 +1,6 @@
-import { ArrowForwardIos } from '@mui/icons-material';
+import { ArrowForwardIos, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Button, Card, CardContent, Collapse, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, Card, CardContent, Collapse, Grow, Stack, Typography, useTheme } from '@mui/material';
 import centerOfMass from '@turf/center-of-mass';
 import distance from '@turf/distance';
 import { point } from '@turf/helpers';
@@ -23,9 +23,10 @@ const LoopingRecordingForm = () => {
 
 	const [loadingSpeakerAudio, setLoadingSpeakerAudio] = useState(false);
 
+	const [isRecording, setIsRecording] = useState(false);
+
 	useEffect(() => {
 		if (!roundware.speakers) return;
-		console.log(roundware.speakers);
 
 		if (search) {
 			const params = new URLSearchParams(search);
@@ -108,13 +109,55 @@ const LoopingRecordingForm = () => {
 						{audioDuration > 0 && (
 							<CountdownCircleTimer
 								duration={audioDuration}
-								colors={theme.palette.primary.main}
+								colors={isRecording ? theme.palette.error.main : theme.palette.primary.main}
+								trailColor={theme.palette.grey[800]}
 								isPlaying={start}
 								onComplete={() => {
 									return [true, 0];
 								}}
 							>
-								{countdownChildren}
+								<Box
+									sx={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<Grow in={!isRecording}>
+										<Button
+											variant='contained'
+											color='primary'
+											sx={{
+												fontWeight: 'bold',
+												background: theme.palette.error.main,
+												'&:hover': {
+													background: theme.palette.error.dark,
+												},
+												position: 'relative',
+											}}
+											endIcon={<Mic />}
+											onClick={() => {
+												setIsRecording(true);
+											}}
+										>
+											RECORD
+										</Button>
+									</Grow>
+
+									<Grow in={isRecording}>
+										<Typography
+											variant='h6'
+											textAlign={'center'}
+											sx={{
+												position: 'absolute',
+												color: 'GrayText',
+												transform: 'translateY(-50%)',
+											}}
+										>
+											Recording...
+										</Typography>
+									</Grow>
+								</Box>
 							</CountdownCircleTimer>
 						)}
 					</Stack>
