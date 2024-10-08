@@ -5,13 +5,13 @@ import { merge } from 'lodash';
 // this config object can be overridden by config.json
 // Refer the type object below for info and comments on each config option
 let config: IConfig = {
-	locale: 'es',
+	locale: 'en',
 	debugMode: false,
 
 	project: {
-		apiUrl: 'https://dev.roundware.com/api/2',
-		serverUrl: 'https://dev.roundware.com/',
-		id: 1,
+		apiUrl: 'https://prod.roundware.com/api/2',
+		serverUrl: 'https://prod.roundware.com/',
+		id: 44,
 		initialLocation: {
 			latitude: 21.1458,
 			longitude: 79.0882,
@@ -50,12 +50,12 @@ let config: IConfig = {
 
 		zoom: {
 			high: 17,
-			low: 15,
+			low: 11,
 			walking: 22,
 		},
 		speakerDisplay: 'polygons',
 		speakerPolygonColors: ['#044389', '#FCFF4B', '#FFAD05', '#7CAFC4', '#63A375', '#EF27A6'],
-		useListenMapBounds: true,
+		useListenMapBounds: false,
 		showBoundsMarkers: false,
 		bounds: 'none',
 		boundsPoints: {
@@ -66,16 +66,16 @@ let config: IConfig = {
 		},
 		assetTypeDisplay: ['audio', 'photo', 'text'],
 
-		assetDisplay: 'polygon',
+		assetDisplay: 'circle',
 	},
 
 	ui: {
 		navLogoHeight: 34,
 		listenSidebar: {
-			defaultOpen: true,
+			defaultOpen: false,
 			active: true,
 			filter: {
-				active: false,
+				active: true,
 				available: ['date', 'tags', 'description'],
 			},
 			history: {
@@ -89,8 +89,8 @@ let config: IConfig = {
 		},
 
 		listenTransport: {
-			includeSkipForwardButton: true,
-			includeSkipBackButton: true,
+			includeSkipForwardButton: false,
+			includeSkipBackButton: false,
 		},
 	},
 
@@ -100,7 +100,7 @@ let config: IConfig = {
 		surveyLink: 'https://forms.gle/nMfJNPozSW1KFddu7',
 		autoResetTimeSeconds: 0,
 
-		speakerToggleIds: [18, 19],
+		speakerToggleIds: [],
 	},
 };
 
