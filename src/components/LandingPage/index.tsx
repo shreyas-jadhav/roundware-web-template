@@ -74,7 +74,7 @@ export const LandingPage = () => {
 						</Grid>
 					)}
 
-					{project.data?.speak_enabled && (
+					{project.data?.speak_enabled && config.speak.recordingMethod === 'standard' && (
 						<Grid item>
 							<ActionButton label={'Speak'} linkTo={'/speak'} />
 						</Grid>

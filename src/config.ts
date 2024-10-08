@@ -24,8 +24,8 @@ let config: IConfig = {
 		geoListenMode: 'device',
 		autoplay: false,
 		speaker: {
-			sync: true,
-			prefetch: false,
+			sync: false,
+			prefetch: true,
 			loop: true,
 			acceptableDelayMs: 50,
 			syncCheckInterval: 2500,
@@ -39,6 +39,7 @@ let config: IConfig = {
 		allowText: true,
 		allowSpeakTags: true,
 		defaultSpeakTags: [],
+		recordingMethod: 'looping',
 	},
 
 	map: {

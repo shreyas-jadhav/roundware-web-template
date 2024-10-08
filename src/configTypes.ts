@@ -72,6 +72,8 @@ export type IConfig = {
 		allowSpeakTags: boolean;
 		/** default tags to be included regardless what user selects */
 		defaultSpeakTags: number[];
+		/** recording method */
+		recordingMethod: 'standard' | 'looping';
 	};
 	/** config for map */
 	map: {

@@ -111,12 +111,12 @@ const useCreateRecording = () => {
 	useEffect(() => {
 		const hasLocation = draftRecording.location.latitude && draftRecording.location.longitude;
 		if (!hasLocation) {
-			history.replace('/speak/location/');
+			history.replace({ pathname: '/speak/location/', search: history.location.search });
 		}
 		const hasTags = draftRecording.tags.length > 0;
 
 		if (!hasTags && config.speak.allowSpeakTags !== false) {
-			history.replace('/speak/tags/0');
+			history.replace({ pathname: '/speak/tags/0', search: history.location.search });
 		}
 	}, [draftRecording.tags, draftRecording.location.latitude, draftRecording.location.longitude]);
 
@@ -133,7 +133,7 @@ const useCreateRecording = () => {
 		if (success != null && config.features.autoResetTimeSeconds > 0) {
 			timeout = setTimeout(() => {
 				draftRecording.reset();
-				history.push('/speak/tags/0');
+				history.push({ pathname: '/speak/tags/0', search: history.location.search });
 			}, config.features.autoResetTimeSeconds * 1000);
 
 			setTimer(timeout);
