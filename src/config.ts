@@ -11,7 +11,7 @@ let config: IConfig = {
 	project: {
 		apiUrl: 'https://prod.roundware.com/api/2',
 		serverUrl: 'https://prod.roundware.com/',
-		id: 44,
+		id: 55,
 		initialLocation: {
 			latitude: 21.1458,
 			longitude: 79.0882,
@@ -37,7 +37,7 @@ let config: IConfig = {
 	speak: {
 		allowPhotos: true,
 		allowText: true,
-		allowSpeakTags: true,
+		allowSpeakTags: false,
 		defaultSpeakTags: [],
 		recordingMethod: 'looping',
 	},

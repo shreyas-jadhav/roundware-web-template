@@ -325,6 +325,12 @@ const LoopingRecordingForm = () => {
 							setLegalModalOpen(false);
 						}}
 						onAccept={async () => {
+							// stop the audio
+							speakerAudio.current.pause();
+							speakerAudio.current.currentTime = 0;
+							recordedAudio.current.pause();
+							recordedAudio.current.currentTime = 0;
+
 							setLegalModalOpen(false);
 							setSaving(true);
 
