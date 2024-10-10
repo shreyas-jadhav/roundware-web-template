@@ -367,7 +367,7 @@ const LoopingRecordingForm = () => {
 								);
 
 								await Promise.all(promises);
-								window.location.pathname = `/listen`;
+								window.location.pathname = `/listen?eid=${envelope._envelopeId}`;
 							} catch (err) {}
 							setSaving(false);
 						}}
