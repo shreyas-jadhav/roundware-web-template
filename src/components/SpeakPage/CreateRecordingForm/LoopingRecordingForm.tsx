@@ -101,7 +101,12 @@ const LoopingRecordingForm = () => {
 			recordedAudio.current.currentTime = 0;
 			recordedAudio.current.src = '';
 
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			const stream = await navigator.mediaDevices.getUserMedia({
+				audio: {
+					echoCancellation: false,
+				},
+			});
+
 			mediaRecorder.current = new MediaRecorder(stream);
 			audioChunks.current = [];
 
