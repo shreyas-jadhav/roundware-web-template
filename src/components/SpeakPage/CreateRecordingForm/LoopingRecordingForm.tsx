@@ -116,6 +116,7 @@ const LoopingRecordingForm = () => {
 				recordedAudio.current.src = audioUrl;
 				recordedAudio.current.loop = true;
 				recordedAudio.current.play();
+				speakerAudio.current.volume = 0;
 			};
 
 			mediaRecorder.current.start();
