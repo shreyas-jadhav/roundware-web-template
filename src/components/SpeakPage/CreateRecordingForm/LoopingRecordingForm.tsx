@@ -123,7 +123,7 @@ const LoopingRecordingForm = () => {
 				recordedAudio.current.play();
 				speakerAudio.current.volume = 0.5;
 			};
-
+			speakerAudio.current.volume = 1; // before recording, set the volume to 1
 			mediaRecorder.current.start();
 		} catch (error) {
 			console.error('Error starting recording:', error);
