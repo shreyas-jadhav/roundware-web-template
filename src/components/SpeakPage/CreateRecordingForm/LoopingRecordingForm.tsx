@@ -17,7 +17,7 @@ import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 const LoopingRecordingForm = () => {
 	const [start, setStart] = useState(false);
 	const { search } = useLocation();
-	const history = useHistory();
+
 	const [audioDuration, setAudioDuration] = useState(0);
 
 	const speakerAudio = useRef(new Audio());
@@ -41,20 +41,25 @@ const LoopingRecordingForm = () => {
 
 		if (search) {
 			const params = new URLSearchParams(search);
-			const lat = parseInt(params.get('lat') as string) ?? 0;
-			const lng = parseInt(params.get('lng') as string) ?? 0;
+			const lat = parseFloat(params.get('lat') as string) ?? 0;
+			const lng = parseFloat(params.get('lng') as string) ?? 0;
+			roundware.mixer.initializeSpeakers();
+			roundware.mixer.speakerTracks?.forEach((speaker) => {
+				speaker.updateParams(false, {
+					listenerPoint: point([lng, lat]),
+				});
+			});
 
-			const closestSpeaker = roundware.speakers().reduce(
-				(selected: { speaker: ISpeakerData | null; dist: number }, speaker) => {
-					const dist = distance(centerOfMass(speaker.shape), point([lng, lat]));
-					return dist < selected.dist ? { speaker, dist } : selected;
-				},
-				{ speaker: null, dist: Infinity }
-			);
-
-			if (closestSpeaker.speaker) {
-				selectedSpeakerId.current = closestSpeaker.speaker.id;
-				speakerAudio.current.src = closestSpeaker.speaker.uri;
+			const sts = roundware.mixer.speakerTracks?.sort((st1, st2) => {
+				console.log('volume: ', st1.speakerData.id, st1.calculateVolume(), st1.listenerPoint);
+				console.log('volume:', st2.speakerData.id, st2.calculateVolume());
+				return st2.calculateVolume() - st1.calculateVolume();
+			});
+			console.log(sts);
+			if (sts && sts.length > 0) {
+				const closestSpeaker = sts[0].speakerData;
+				selectedSpeakerId.current = closestSpeaker.id;
+				speakerAudio.current.src = closestSpeaker.uri;
 				speakerAudio.current.loop = true;
 				speakerAudio.current.addEventListener('loadedmetadata', () => {
 					setAudioDuration(speakerAudio.current.duration);
@@ -62,6 +67,18 @@ const LoopingRecordingForm = () => {
 			}
 		}
 	}, [search, roundware]);
+
+	useEffect(() => {
+		return () => {
+			if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
+				mediaRecorder.current.stop();
+			}
+			speakerAudio.current.pause();
+			speakerAudio.current.currentTime = 0;
+			recordedAudio.current.pause();
+			recordedAudio.current.currentTime = 0;
+		};
+	}, []);
 
 	const checkMicrophonePermission = async () => {
 		try {
