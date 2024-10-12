@@ -1,22 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowForwardIos, Check, Mic, Stop } from '@mui/icons-material';
+import { ArrowForwardIos, Check, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, CardContent, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grow, Stack, Typography, useTheme } from '@mui/material';
-import centerOfMass from '@turf/center-of-mass';
-import distance from '@turf/distance';
 import { point } from '@turf/helpers';
 import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
-import { useRoundware, useRoundwareDraft } from 'hooks/index';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import { Prompt, useHistory, useLocation } from 'react-router';
-import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
 import LegalAgreementForm from 'components/LegalAgreementForm';
 import finalConfig from 'config';
+import { useRoundware, useRoundwareDraft } from 'hooks/index';
+import { useEffect, useRef, useState } from 'react';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import { Prompt, useHistory, useLocation } from 'react-router';
 import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 
 const LoopingRecordingForm = () => {
 	const [start, setStart] = useState(false);
 	const { search } = useLocation();
+	const history = useHistory();
 
 	const [audioDuration, setAudioDuration] = useState(0);
 
@@ -390,7 +388,7 @@ const LoopingRecordingForm = () => {
 								);
 
 								await Promise.all(promises);
-								window.location.pathname = `/listen?eid=${envelope._envelopeId}`;
+								history.push(`/listen?eid=${envelope._envelopeId}`);
 							} catch (err) {}
 							setSaving(false);
 						}}
