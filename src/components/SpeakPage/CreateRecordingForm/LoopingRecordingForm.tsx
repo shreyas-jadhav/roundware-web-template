@@ -262,6 +262,10 @@ const LoopingRecordingForm = () => {
 												endIcon={<Mic />}
 												onClick={() => {
 													if (draftMediaUrl) {
+														setDraftMediaUrl(null);
+														recordedAudio.current.pause();
+														recordedAudio.current.currentTime = 0;
+														recordedAudio.current.src = '';
 														setShowRerecordConfirm(true);
 													} else handleStartRecording();
 												}}
