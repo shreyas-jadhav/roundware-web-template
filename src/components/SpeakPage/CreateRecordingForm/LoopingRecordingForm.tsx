@@ -137,6 +137,9 @@ const LoopingRecordingForm = () => {
 				recordedAudio.current.src = audioUrl;
 				recordedAudio.current.loop = true;
 				recordedAudio.current.play();
+
+				recordedAudio.current.volume = 1;
+
 				speakerAudio.current.volume = 0.5;
 			};
 			speakerAudio.current.volume = 1; // before recording, set the volume to 1
