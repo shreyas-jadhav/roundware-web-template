@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { Prompt, useHistory, useLocation } from 'react-router';
 import { IAssetData } from 'roundware-web-framework/dist/types/asset';
+import { ITag } from 'roundware-web-framework/dist/types/index';
 
 const LoopingRecordingForm = () => {
 	const [start, setStart] = useState(false);
@@ -355,6 +356,8 @@ const LoopingRecordingForm = () => {
 							setLegalModalOpen(false);
 							setSaving(true);
 
+							// fetch all the tags;
+
 							// include default speak tags
 							const finalTags = selected_tags.map((t) => t?.tag_id).filter((t) => t !== undefined) as number[];
 							finalConfig.speak.defaultSpeakTags?.forEach((t) => {
@@ -363,13 +366,23 @@ const LoopingRecordingForm = () => {
 								}
 							});
 
+							const tags = await roundware.apiClient.get<ITag[]>('/tags', {
+								project_id: roundware.project.projectId,
+							});
+
+							// @ts-ignore
+							const speakerTag = tags.find((t) => t.value == selectedSpeakerId.current?.toString())?.id as number;
+
+							if (speakerTag) {
+								finalTags.push(speakerTag);
+							}
+
 							const params = new URLSearchParams(search);
 
 							const assetMeta = {
-								longitude: parseInt(params.get('lng') as string),
-								latitude: parseInt(params.get('lat') as string),
+								longitude: parseFloat(params.get('lng') as string),
+								latitude: parseFloat(params.get('lat') as string),
 								...(finalTags.length > 0 ? { tag_ids: finalTags } : {}),
-								speaker_id: selectedSpeakerId.current,
 							};
 							const dateStr = new Date().toISOString();
 

@@ -9,9 +9,9 @@ let config: IConfig = {
 	debugMode: false,
 
 	project: {
-		apiUrl: 'https://prod.roundware.com/api/2',
-		serverUrl: 'https://prod.roundware.com/',
-		id: 55,
+		apiUrl: 'https://dev.roundware.com/api/2',
+		serverUrl: 'https://dev.roundware.com/',
+		id: 1,
 		initialLocation: {
 			latitude: 21.1458,
 			longitude: 79.0882,
