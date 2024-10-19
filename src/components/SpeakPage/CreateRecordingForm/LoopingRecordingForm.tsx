@@ -136,9 +136,25 @@ const LoopingRecordingForm = () => {
 				setDraftMediaUrl(audioUrl);
 				recordedAudio.current.src = audioUrl;
 				recordedAudio.current.loop = true;
+
 				recordedAudio.current.play();
 
-				recordedAudio.current.volume = 1;
+				recordedAudio.current.ontimeupdate = (event) => {
+					// fade out and fade in and outs of 50ms
+					const fadeOutDuration = 0.05;
+
+					const currentTime = recordedAudio.current.currentTime;
+
+					const duration = recordedAudio.current.duration;
+
+					if (currentTime < fadeOutDuration) {
+						recordedAudio.current.volume = currentTime / fadeOutDuration;
+					} else if (currentTime > duration - fadeOutDuration) {
+						recordedAudio.current.volume = (duration - currentTime) / fadeOutDuration;
+					} else {
+						recordedAudio.current.volume = 1; // actual volume while playing
+					}
+				};
 
 				speakerAudio.current.volume = 0.5;
 			};
