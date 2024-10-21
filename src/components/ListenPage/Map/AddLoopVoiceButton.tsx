@@ -1,16 +1,13 @@
 import { Mic } from '@mui/icons-material';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent } from '@mui/material';
 import { point } from '@turf/helpers';
 import { useRoundware } from 'hooks/index';
 import { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
 
 const AddLoopVoiceButton = () => {
-	const { roundware } = useRoundware();
+	const { roundware, forceUpdate } = useRoundware();
 
 	const [showNoSpeakerMessage, setShowNoSpeakerMessage] = useState(false);
-
-	const history = useHistory();
 
 	const handleClick = () => {
 		const lat = roundware.listenerLocation.latitude as number;
@@ -29,10 +26,13 @@ const AddLoopVoiceButton = () => {
 		});
 
 		if (sts && sts.length > 0 && sts[0].calculateVolume() !== sts[0].minVolume) {
-			history.push({
-				pathname: '/speak',
-				search: `?lat=${lat}&lng=${lng}`,
-			});
+			roundware.mixer.stop();
+			forceUpdate();
+			// history.push({
+			// 	pathname: '/speak',
+			// 	search: `?lat=${lat}&lng=${lng}`,
+			// });
+			window.location.href = `/speak?lat=${lat}&lng=${lng}`;
 		} else {
 			setShowNoSpeakerMessage(true);
 		}
