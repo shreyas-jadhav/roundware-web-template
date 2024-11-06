@@ -29,6 +29,7 @@ import ShareDialog from './ShareDialog';
 import SpeakButton from './SpeakButton';
 import useStyles from './styles';
 import ErrorBoundary from 'components/elements/ErrorBoundary';
+import CreateSpeaker from 'components/SpeakPage/CreateSpeaker';
 
 export const App = () => {
 	const [theme] = useState(defaultTheme);
@@ -81,6 +82,7 @@ export const App = () => {
 							<Route path='/listen' component={ListenPage} />
 							<Route path='/speak' component={SpeakPage} />
 							<Route path='/debug' component={DebugPage} />
+							<Route path='/speakers' component={CreateSpeaker} />
 						</Switch>
 					</div>
 					<AppBar position='sticky' className={classes.bottomBar}>

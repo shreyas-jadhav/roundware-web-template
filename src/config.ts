@@ -40,6 +40,7 @@ let config: IConfig = {
 		allowSpeakTags: false,
 		defaultSpeakTags: [],
 		recordingMethod: 'looping',
+		uploadSpeaker: true,
 	},
 
 	map: {

@@ -4,7 +4,7 @@
 	"description": "",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "PORT=2345 react-scripts start",
+		"start": " set PORT=2345 && react-scripts start",
 		"deploy": "npm run build && cp ./dist/index.html ./dist/200.html && surge --domain https://roundware-typescript.surge.sh dist",
 		"build": "react-scripts build",
 		"install-rwf": "cd ../roundware-web-framework && npm run build && npm pack && cd ../roundware-web-template && rm -rf node_modules/roundware-web-framework/ &&  npm i file:../roundware-web-framework/roundware-web-framework-0.12.8-alpha.14.tgz"
@@ -29,6 +29,7 @@
 		"@turf/midpoint": "^6.5.0",
 		"@turf/point-to-line-distance": "^7.1.0",
 		"@turf/polygon-to-line": "^7.0.0",
+		"@turf/turf": "^7.1.0",
 		"audio-recorder-polyfill": "^0.4.1",
 		"autosuggest-highlight": "^3.1.1",
 		"browser-id3-writer": "^4.4.0",
@@ -71,6 +72,7 @@
 		"@types/react-helmet": "^6.1.2",
 		"@types/react-router-dom": "^5.1.8",
 		"@types/wavesurfer.js": "^5.2.2",
+		"cross-env": "^7.0.3",
 		"dotenv": "^10.0.0",
 		"nth-check": "^2.0.0",
 		"react-scripts": "^5.0.1",

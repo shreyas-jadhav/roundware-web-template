@@ -57,6 +57,7 @@ export type IConfig = {
 			 * value should be in ms
 			 */
 			syncCheckInterval: number;
+
 		};
 
 		/** duration to skip when listen transport buttons are clicked */
@@ -74,6 +75,8 @@ export type IConfig = {
 		defaultSpeakTags: number[];
 		/** recording method */
 		recordingMethod: 'standard' | 'looping';
+
+		uploadSpeaker: boolean;
 	};
 	/** config for map */
 	map: {
