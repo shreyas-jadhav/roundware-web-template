@@ -74,6 +74,8 @@ export type IConfig = {
 		defaultSpeakTags: number[];
 		/** recording method */
 		recordingMethod: 'standard' | 'looping';
+		/** upload as speaker */
+		uploadAsSpeaker: boolean;
 	};
 	/** config for map */
 	map: {

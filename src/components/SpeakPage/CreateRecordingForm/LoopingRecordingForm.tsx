@@ -1,11 +1,13 @@
 import { ArrowForwardIos, Check, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, CardContent, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grow, Stack, Typography, useTheme } from '@mui/material';
-import { point } from '@turf/helpers';
+import { lineString, point, polygon } from '@turf/helpers';
+import { circle } from '@turf/turf';
 import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
 import LegalAgreementForm from 'components/LegalAgreementForm';
 import finalConfig from 'config';
 import { useRoundware, useRoundwareDraft } from 'hooks/index';
+import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { Prompt, useHistory, useLocation } from 'react-router';
@@ -379,54 +381,87 @@ const LoopingRecordingForm = () => {
 							setLegalModalOpen(false);
 							setSaving(true);
 
-							// fetch all the tags;
+							if (!finalConfig.speak.uploadAsSpeaker) {
+								// upload as ASSET:
 
-							// include default speak tags
-							const finalTags = selected_tags.map((t) => t?.tag_id).filter((t) => t !== undefined) as number[];
-							finalConfig.speak.defaultSpeakTags?.forEach((t) => {
-								if (!finalTags.includes(t)) {
-									finalTags.push(t);
+								// include default speak tags
+								const finalTags = selected_tags.map((t) => t?.tag_id).filter((t) => t !== undefined) as number[];
+								finalConfig.speak.defaultSpeakTags?.forEach((t) => {
+									if (!finalTags.includes(t)) {
+										finalTags.push(t);
+									}
+								});
+
+								const tags = await roundware.apiClient.get<ITag[]>('/tags', {
+									project_id: roundware.project.projectId,
+								});
+
+								// @ts-ignore
+								const speakerTag = tags.find((t) => t.value == selectedSpeakerId.current?.toString())?.id as number;
+
+								if (speakerTag) {
+									finalTags.push(speakerTag);
 								}
-							});
 
-							const tags = await roundware.apiClient.get<ITag[]>('/tags', {
-								project_id: roundware.project.projectId,
-							});
+								const params = new URLSearchParams(search);
 
-							// @ts-ignore
-							const speakerTag = tags.find((t) => t.value == selectedSpeakerId.current?.toString())?.id as number;
+								const assetMeta = {
+									longitude: parseFloat(params.get('lng') as string),
+									latitude: parseFloat(params.get('lat') as string),
+									...(finalTags.length > 0 ? { tag_ids: finalTags } : {}),
+								};
+								const dateStr = new Date().toISOString();
 
-							if (speakerTag) {
-								finalTags.push(speakerTag);
-							}
+								// Make an envelope to hold the uploaded assets.
+								const envelope = await roundware.makeEnvelope();
+								try {
+									let asset: Partial<IAssetData> | null = null;
+									// hold all promises for parallel execution
+									const promises = [];
+									// Add the audio asset.
+									const draftRecordingMedia = new Blob([audioChunks.current[0]], { type: 'audio/wav' });
+									promises.push(
+										(async () => {
+											asset = await envelope.upload(draftRecordingMedia, dateStr + '.mp3', assetMeta);
+										})()
+									);
 
-							const params = new URLSearchParams(search);
+									await Promise.all(promises);
+									history.push(`/listen?eid=${envelope._envelopeId}`);
+								} catch (err) {}
+							} else {
+								const params = new URLSearchParams(search);
 
-							const assetMeta = {
-								longitude: parseFloat(params.get('lng') as string),
-								latitude: parseFloat(params.get('lat') as string),
-								...(finalTags.length > 0 ? { tag_ids: finalTags } : {}),
-							};
-							const dateStr = new Date().toISOString();
+								const speakerShape = circle([parseFloat(params.get('lat') as string), parseFloat(params.get('lng') as string)], 10, { units: 'meters' });
 
-							// Make an envelope to hold the uploaded assets.
-							const envelope = await roundware.makeEnvelope();
-							try {
-								let asset: Partial<IAssetData> | null = null;
-								// hold all promises for parallel execution
-								const promises = [];
-								// Add the audio asset.
 								const draftRecordingMedia = new Blob([audioChunks.current[0]], { type: 'audio/wav' });
-								promises.push(
-									(async () => {
-										asset = await envelope.upload(draftRecordingMedia, dateStr + '.mp3', assetMeta);
-									})()
-								);
+								const formData = new FormData();
+								formData.append('activeyn', 'true');
+								formData.append('code', moment().format('DDMMYYHHmm'));
+								formData.append('maxvolume', '1.0');
+								formData.append('minvolume', '0.0');
+								formData.append('shape', JSON.stringify(speakerShape.geometry)); // Convert shape to string if needed
+								formData.append('file', draftRecordingMedia);
+								formData.append('attenuation_distance', '5');
+								formData.append('project_id', finalConfig.project.id.toString());
+								try {
+									const response: { uri: string } = await roundware.apiClient.post('/speakers/', formData, {
+										method: 'POST',
+										contentType: 'multipart/form-data',
+									});
 
-								await Promise.all(promises);
-								history.push(`/listen?eid=${envelope._envelopeId}`);
-							} catch (err) {}
-							setSaving(false);
+									// history.push(`/listen`);
+									setSaving(false);
+
+									console.error('Response: ' + JSON.stringify(response, null, 2));
+
+									if (!response) {
+										throw new Error('Failed to save audio');
+									}
+								} finally {
+									setSaving(false);
+								}
+							}
 						}}
 					/>
 				</Dialog>
