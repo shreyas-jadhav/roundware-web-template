@@ -2,7 +2,7 @@ import { ArrowForwardIos, Check, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, CardContent, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grow, Stack, Typography, useTheme } from '@mui/material';
 import { lineString, point, polygon } from '@turf/helpers';
-import { circle } from '@turf/turf';
+import { circle, multiPolygon } from '@turf/turf';
 import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
 import LegalAgreementForm from 'components/LegalAgreementForm';
 import finalConfig from 'config';
@@ -432,7 +432,11 @@ const LoopingRecordingForm = () => {
 							} else {
 								const params = new URLSearchParams(search);
 
-								const speakerShape = circle([parseFloat(params.get('lat') as string), parseFloat(params.get('lng') as string)], 10, { units: 'meters' });
+								const speakerShape = multiPolygon([
+									circle([parseFloat(params.get('lat') as string), parseFloat(params.get('lng') as string)], 10, {
+										units: 'meters',
+									}).geometry.coordinates,
+								]);
 
 								const draftRecordingMedia = new Blob([audioChunks.current[0]], { type: 'audio/wav' });
 								const formData = new FormData();
@@ -440,7 +444,8 @@ const LoopingRecordingForm = () => {
 								formData.append('code', moment().format('DDMMYYHHmm'));
 								formData.append('maxvolume', '1.0');
 								formData.append('minvolume', '0.0');
-								formData.append('shape', JSON.stringify(speakerShape.geometry)); // Convert shape to string if needed
+								formData.append('shape', JSON.stringify(speakerShape.geometry));
+
 								formData.append('file', draftRecordingMedia);
 								formData.append('attenuation_distance', '5');
 								formData.append('project_id', finalConfig.project.id.toString());
