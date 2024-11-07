@@ -433,7 +433,7 @@ const LoopingRecordingForm = () => {
 								const params = new URLSearchParams(search);
 
 								const speakerShape = multiPolygon([
-									circle([parseFloat(params.get('lat') as string), parseFloat(params.get('lng') as string)], 10, {
+									circle([parseFloat(params.get('lng') as string), parseFloat(params.get('lat') as string)], 10, {
 										units: 'meters',
 									}).geometry.coordinates,
 								]);
