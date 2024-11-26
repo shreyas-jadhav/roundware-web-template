@@ -2,7 +2,7 @@ import { ArrowForwardIos, Check, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, CardContent, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grow, Stack, Typography, useTheme } from '@mui/material';
 import { lineString, point, polygon } from '@turf/helpers';
-import { circle, multiPolygon } from '@turf/turf';
+import { buffer, circle, multiPolygon } from '@turf/turf';
 import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
 import LegalAgreementForm from 'components/LegalAgreementForm';
 import finalConfig from 'config';
@@ -15,6 +15,10 @@ import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 import { ITag } from 'roundware-web-framework/dist/types/index';
 
 const LoopingRecordingForm = () => {
+
+	const [expandParentSpeaker, setExpandParentSpeaker] = useState(true); // Toggle
+	const expandRadius = 2; // meters - adjust as needed
+	
 	const [start, setStart] = useState(false);
 	const { search } = useLocation();
 	const history = useHistory();
@@ -405,6 +409,25 @@ const LoopingRecordingForm = () => {
 
 								const params = new URLSearchParams(search);
 
+								// let speakerShape1;
+
+								// const lng = parseFloat(params.get('lng') as string);
+								// const lat = parseFloat(params.get('lat') as string);
+
+								// const originalPoint = point([lng, lat]);
+								// speakerShape1 = circle([lng, lat], 10, { units: 'meters' }); // Original circle
+
+								// if (expandParentSpeaker && expandRadius > 0) {
+								// 				console.log("Original Shape:", speakerShape1); // Log the original shape
+								// 				const buffered = buffer(speakerShape1, expandRadius, { units: 'meters' });
+								// 				console.log('Buffered shape:', buffered); // Log the buffered shape
+								// 				speakerShape1 = buffered;
+								// 			}
+
+								// console.error(JSON.stringify(speakerShape1));
+
+								
+
 								const assetMeta = {
 									longitude: parseFloat(params.get('lng') as string),
 									latitude: parseFloat(params.get('lat') as string),
@@ -431,6 +454,8 @@ const LoopingRecordingForm = () => {
 								} catch (err) {}
 							} else {
 								const params = new URLSearchParams(search);
+
+								
 
 								const speakerShape = multiPolygon([
 									circle([parseFloat(params.get('lng') as string), parseFloat(params.get('lat') as string)], 10, {
@@ -459,6 +484,22 @@ const LoopingRecordingForm = () => {
 									setSaving(false);
 
 									console.error('Response: ' + JSON.stringify(response, null, 2));
+
+									const lng = parseFloat(params.get('lng') as string);
+									const lat = parseFloat(params.get('lat') as string);
+
+									let speakerShape1;
+
+									// Create the initial circle shape
+									speakerShape1 = circle([lng, lat], 10, { units: 'meters' });
+									console.error("Initially created speakerShape:", JSON.stringify(speakerShape, null, 2));
+
+									// Apply buffer if expandParentSpeaker is true and radius > 0
+									if (expandParentSpeaker && expandRadius > 0) {
+										speakerShape1 = buffer(speakerShape1, expandRadius, { units: 'meters' });
+										console.error("Buffered speakerShape:", JSON.stringify(speakerShape, null, 2));
+									}
+
 
 									if (!response) {
 										throw new Error('Failed to save audio');
