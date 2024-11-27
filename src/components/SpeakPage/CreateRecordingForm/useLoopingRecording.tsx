@@ -48,7 +48,7 @@ const useLoop = () => {
 
 	const speakerAudioBuffer = useRef<AudioBuffer | null>(null);
 	const speakerSource = useRef<AudioBufferSourceNode | null>(null);
-	const recorderSource = useRef<AudioBufferSourceNode | null>(null);
+	const recordedAudioSource = useRef<AudioBufferSourceNode | null>(null);
 
 	const [mode, setMode] = useState<'idle' | 'playing-speaker' | 'waiting-to-record' | 'recording' | 'recording-playback'>('idle');
 	console.debug({ mode });
@@ -92,33 +92,32 @@ const useLoop = () => {
 
 		if (recordedAudioBlob) {
 			console.debug('Starting loop with recordedAudioBlob');
-			recorderSource.current = audioContext.current.createBufferSource();
+			recordedAudioSource.current = audioContext.current.createBufferSource();
 			const blob = await recordedAudioBlob.arrayBuffer();
 
 			audioContext.current.decodeAudioData(blob, (buffer) => {
-				if (!recorderSource.current) return;
+				if (!recordedAudioSource.current) return;
 				if (!speakerAudioBuffer.current) return;
+
+				recordedAudioSource.current.buffer = buffer;
+				recordedAudioSource.current.loop = true;
 
 				// trim the buffer to the duration of the speaker
 				const difference = buffer.duration - speakerAudioBuffer.current.duration;
 
-				recorderSource.current.buffer = buffer;
-
-				recorderSource.current.loop = true;
-
 				if (difference > 0) {
-					recorderSource.current.loopStart = difference / 2;
-					recorderSource.current.loopEnd = buffer.duration - difference / 2;
+					recordedAudioSource.current.loopStart = difference / 2;
+					recordedAudioSource.current.loopEnd = buffer.duration - difference / 2;
 				}
 
 				// gain
 				const recorderGain = audioContext.current.createGain();
 				recorderGain.gain.value = 0;
-				recorderSource.current.connect(recorderGain);
+				recordedAudioSource.current.connect(recorderGain);
 				recorderGain.connect(audioContext.current.destination);
 
 				calculateNextPoint();
-				recorderSource.current.start();
+				recordedAudioSource.current.start();
 
 				recorderGain.gain.linearRampToValueAtTime(finalSpeakerVolume, audioContext.current.currentTime + fadeDuration);
 
@@ -128,7 +127,7 @@ const useLoop = () => {
 				setMode('recording-playback');
 			});
 		} else {
-			recorderSource.current = null;
+			recordedAudioSource.current = null;
 			calculateNextPoint();
 			speakerSource.current.start();
 			console.debug('speakerSource.current.start()');
@@ -146,9 +145,9 @@ const useLoop = () => {
 			speakerSource.current.stop();
 			speakerSource.current.disconnect();
 		}
-		if (recorderSource.current) {
-			recorderSource.current.stop();
-			recorderSource.current.disconnect();
+		if (recordedAudioSource.current) {
+			recordedAudioSource.current.stop();
+			recordedAudioSource.current.disconnect();
 		}
 	}
 
