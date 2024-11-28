@@ -9,7 +9,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { DraftRecordingProvider } from '../../providers/DraftRecordingProvider';
 import { config } from 'process';
 import finalConfig from 'config';
-import LoopingRecordingForm from './CreateRecordingForm/LoopingRecordingForm';
+import LoopingRecordingForm from './CreateRecordingForm/LoopingRecording/LoopingRecordingForm';
 
 const useStyles = makeStyles((theme) => {
 	return {
