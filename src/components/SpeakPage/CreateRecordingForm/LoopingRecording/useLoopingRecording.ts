@@ -3,6 +3,7 @@ import { useClosestSpeaker } from './useClosestSpeaker';
 import { useLoop } from './useLoop';
 import { useRecorder } from './useRecorder';
 import { useSubmission } from './useSubmission';
+import { useRealtimePlayback } from './useRealtimePlayback';
 
 export const useLoopingRecording = () => {
 	// Get the location from the query string
@@ -18,6 +19,12 @@ export const useLoopingRecording = () => {
 	const recorder = useRecorder({
 		duration: speaker.duration || undefined,
 		loop,
+	});
+
+	// handles playback of mic input, with effects
+	useRealtimePlayback({
+		audioContext: loop.audioContext.current,
+		recordingStream: recorder.recorderStream,
 	});
 
 	// handle submission of the recording

@@ -136,5 +136,6 @@ export const useLoop = () => {
 		stop,
 		nextLoopPointAt,
 		setSpeakerUri,
+		audioContext,
 	};
 };

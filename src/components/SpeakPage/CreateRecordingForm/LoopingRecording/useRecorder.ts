@@ -9,6 +9,9 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 
 	const [isPermissionDenied, setIsPermissionDenied] = useState(false);
 
+	const [recorderStream, setRecorderStream] = useState<MediaStream>();
+
+	// just for checking permission start a small recording and stop it
 	const checkMicrophonePermission = async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
@@ -31,6 +34,7 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 		}
 	};
 
+	// schedule recording to start from next loop point in timer
 	const scheduleRecording = async () => {
 		const hasPermission = await checkMicrophonePermission();
 		if (!hasPermission) return;
@@ -61,6 +65,8 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 					echoCancellation: false,
 				},
 			});
+
+			setRecorderStream(stream);
 
 			mediaRecorder.current = new MediaRecorder(stream);
 			audioChunks.current = [];
@@ -105,5 +111,6 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 		scheduleRecording,
 		stopRecording,
 		checkMicrophonePermission,
+		recorderStream,
 	};
 };
