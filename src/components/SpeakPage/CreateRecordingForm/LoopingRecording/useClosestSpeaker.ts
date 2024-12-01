@@ -13,16 +13,19 @@ export const useClosestSpeaker = (
 			speaker: ISpeakerData;
 			duration: number;
 			isReady: true;
+			closestSpeakerId: string | null;
 	  }
 	| {
 			speaker: null;
 			duration: null;
 			isReady: false;
+			closestSpeakerId: null;
 	  } => {
 	const { roundware } = useRoundware();
 
 	const [speaker, setSpeaker] = useState<ISpeakerData | null>(null);
 	const [duration, setAudioDuration] = useState<number | null>(null);
+	const [closestSpeakerId, setClosestSpeakerId] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!roundware.speakers) return;
@@ -44,6 +47,7 @@ export const useClosestSpeaker = (
 			const closestSpeaker = sts[0].speakerData;
 			console.log('Found closest speaker: ', closestSpeaker.id);
 			setSpeaker(closestSpeaker);
+			setClosestSpeakerId(closestSpeaker.id.toString());
 
 			const speakerAudio = new Audio();
 			speakerAudio.src = closestSpeaker.uri;
@@ -60,6 +64,7 @@ export const useClosestSpeaker = (
 			speaker: null,
 			duration: null,
 			isReady: false,
+			closestSpeakerId: null,
 		};
 	}
 
@@ -67,5 +72,6 @@ export const useClosestSpeaker = (
 		speaker,
 		duration,
 		isReady: true,
+		closestSpeakerId,
 	};
 };
