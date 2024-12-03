@@ -66,8 +66,8 @@ export const useLoop = () => {
 				const difference = buffer.duration - speakerAudioBuffer.current.duration;
 
 				if (difference > 0) {
-					recordedAudioSource.current.loopStart = difference / 2;
-					recordedAudioSource.current.loopEnd = buffer.duration - difference / 2;
+					recordedAudioSource.current.loopStart;
+					recordedAudioSource.current.loopEnd = buffer.duration - difference;
 				}
 
 				// gain

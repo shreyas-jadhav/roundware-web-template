@@ -47,10 +47,6 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 		setTimeout(
 			() => {
 				startRecording();
-
-				setTimeout(() => {
-					stopRecording();
-				}, duration * 1000);
 			},
 			loop.nextLoopPointAt.current ? loop.nextLoopPointAt.current - Date.now() : 0
 		);
@@ -84,8 +80,15 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 
 			mediaRecorder.current.onstart = () => {
 				console.debug('Recording started');
+
 				loop.setMode('recording');
 				loop.start();
+
+				if (!duration) return;
+				setTimeout(() => {
+					console.log('Stopping recording');
+					stopRecording();
+				}, duration * 1000);
 			};
 
 			loop.stop();
