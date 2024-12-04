@@ -27,7 +27,11 @@ export const useLoop = () => {
 		}, speakerAudioBuffer.current.duration * 1000);
 	};
 
-	async function start(recordedAudioBlob?: Blob) {
+	async function start(newMode?: typeof mode, recordedAudioBlob?: Blob) {
+		console.debug('start', newMode, recordedAudioBlob);
+		if (newMode) {
+			setMode(newMode);
+		}
 		if (isLoading || !speakerAudioBuffer.current) return;
 
 		await audioContext.current.resume();
@@ -42,7 +46,16 @@ export const useLoop = () => {
 		// speaker gain to 0.5 if there is a recorded audio blob
 		speakerGain.gain.value = 0;
 
-		const finalSpeakerVolume = recordedAudioBlob ? 0.5 : 1;
+		const SPEAKER_VOLUMES: Record<typeof mode, number> = {
+			'playing-speaker': 1,
+			'waiting-to-record': 1,
+			'recording-playback': 0.5,
+			recording: 0.5,
+			idle: 1,
+		};
+
+		const finalSpeakerVolume = SPEAKER_VOLUMES[newMode || mode];
+		console.debug('finalSpeakerVolume', finalSpeakerVolume, newMode);
 		const fadeDuration = 0.3;
 
 		speakerSource.current.connect(speakerGain);
@@ -91,7 +104,6 @@ export const useLoop = () => {
 			calculateNextPoint();
 			speakerSource.current.start();
 			console.debug('speakerSource.current.start()');
-			setMode((prev) => (prev === 'recording' ? 'recording' : 'playing-speaker'));
 		}
 
 		speakerGain.gain.linearRampToValueAtTime(finalSpeakerVolume, audioContext.current.currentTime + fadeDuration);
@@ -108,6 +120,7 @@ export const useLoop = () => {
 		if (recordedAudioSource.current) {
 			recordedAudioSource.current.stop();
 			recordedAudioSource.current.disconnect();
+			recordedAudioSource.current = null;
 		}
 	}
 

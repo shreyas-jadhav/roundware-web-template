@@ -15,8 +15,8 @@ Release: 250ms
 
 const PARAMS = {
 	vol: 1,
-	delay: 0,  // Reduce delay to 0.1 for less echo
-	reverb: 0.3,  // Lower reverb gain for less intensity
+	delay: 0, // Reduce delay to 0.1 for less echo
+	reverb: 0.3, // Lower reverb gain for less intensity
 	threshold: -20,
 	knee: 20,
 	ratio: 12,
@@ -29,7 +29,7 @@ export const useRealtimePlayback = ({ audioContext, recordingStream }: { audioCo
 	// also when unmounting,
 	// please make sure to stop the playback
 	// and clean up the resources
-	const convolverNode = useRef<ConvolverNode | null>(null); 
+	const convolverNode = useRef<ConvolverNode | null>(null);
 	useEffect(() => {
 		if (!recordingStream) return;
 
@@ -56,11 +56,11 @@ export const useRealtimePlayback = ({ audioContext, recordingStream }: { audioCo
 			convolverNode.current = audioContext.createConvolver();
 
 			// Load an impulse response for reverb
-			const bufferSize = audioContext.sampleRate * 2; 
+			const bufferSize = audioContext.sampleRate * 2;
 			const impulseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
 			const impulseData = impulseBuffer.getChannelData(0);
 			for (let i = 0; i < bufferSize; i++) {
-				impulseData[i] = Math.exp(-i / (bufferSize / 2)) * Math.random() * 2; 
+				impulseData[i] = Math.exp(-i / (bufferSize / 2)) * Math.random() * 2;
 			}
 			convolverNode.current.buffer = impulseBuffer;
 
@@ -75,12 +75,7 @@ export const useRealtimePlayback = ({ audioContext, recordingStream }: { audioCo
 			compressorNode.attack.value = Math.min(Math.max(PARAMS.attack, 0), 1);
 			compressorNode.release.value = Math.min(Math.max(PARAMS.release, 0), 1);
 
-			micStream
-				.connect(gainNode)
-				.connect(delayNode)
-				.connect(feedbackGainNode)
-				.connect(compressorNode)
-				.connect(audioContext.destination);
+			micStream.connect(gainNode).connect(delayNode).connect(feedbackGainNode).connect(compressorNode).connect(audioContext.destination);
 
 			delayNode.connect(feedbackGainNode);
 			feedbackGainNode.connect(delayNode);
@@ -91,8 +86,7 @@ export const useRealtimePlayback = ({ audioContext, recordingStream }: { audioCo
 			reverbGainNode.connect(audioContext.destination);
 
 			// Dry signal (without reverb) also goes to the output
-			gainNode.connect(audioContext.destination); 
-
+			gainNode.connect(audioContext.destination);
 		} catch (err) {
 			console.error('Error setting up audio nodes: ', err);
 		}
@@ -107,7 +101,6 @@ export const useRealtimePlayback = ({ audioContext, recordingStream }: { audioCo
 			if (compressorNode) compressorNode.disconnect();
 			if (reverbGainNode) reverbGainNode.disconnect();
 			if (convolverNode.current) convolverNode.current.disconnect();
-			if (audioContext) audioContext.close();
 		};
 	}, [audioContext, recordingStream?.id]);
 };
