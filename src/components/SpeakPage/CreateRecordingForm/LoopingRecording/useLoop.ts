@@ -30,7 +30,10 @@ export const useLoop = () => {
 	async function start(newMode?: typeof mode, recordedAudioBlob?: Blob) {
 		console.debug('start', newMode, recordedAudioBlob);
 		if (newMode) {
-			setMode(newMode);
+			setMode('idle');
+			setTimeout(() => {
+				setMode(newMode);
+			}, 10);
 		}
 		if (isLoading || !speakerAudioBuffer.current) return;
 
