@@ -1,5 +1,5 @@
 import { multiPolygon } from '@turf/helpers';
-import { circle } from '@turf/turf';
+import { circle, buffer } from '@turf/turf';
 import finalConfig from 'config';
 import { useRoundware, useRoundwareDraft } from 'hooks/index';
 import moment from 'moment';
@@ -7,9 +7,10 @@ import { useState } from 'react';
 import { useHistory } from 'react-router';
 import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 import { ITag } from 'roundware-web-framework/dist/types/index';
+import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
 
 // hook to handle saving of the recording to server
-export const useSubmission = ({ location, recordedAudioBlob, closestSpeakerId }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null; closestSpeakerId: string | null; }) => {
+export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null; closestSpeaker: ISpeakerData | null }) => {
 	const [status, setStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
 
 	const draftRecording = useRoundwareDraft();
@@ -23,6 +24,7 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeakerId }:
 		// stop the audio
 
 		setStatus('submitting');
+		console.error("Speaker object received in useSubmission:", closestSpeaker);
 
 		if (!finalConfig.speak.uploadAsSpeaker) {
 			// upload as ASSET:
@@ -90,8 +92,8 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeakerId }:
 			formData.append('file', recordedAudioBlob);
 			formData.append('attenuation_distance', '5');
 			formData.append('project_id', finalConfig.project.id.toString());
-			if (closestSpeakerId) {
-				formData.append('parents', closestSpeakerId);
+			if (closestSpeaker) {
+				formData.append('parents', closestSpeaker.id.toString());
 			}
 
 			const response: { uri: string } = await roundware.apiClient.post('/speakers/', formData, {
@@ -104,6 +106,30 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeakerId }:
 
 			console.error('Response: ' + JSON.stringify(response, null, 2));
 
+			try {
+				if (response && closestSpeaker && closestSpeaker.shape) {
+					// Ensure closestSpeaker.shape is defined and valid
+					const expandedShape = buffer(closestSpeaker.shape, 10, { units: 'meters' });
+
+					if (expandedShape) {
+						
+						// Patch the closest speaker's shape
+						const patchResponse = await roundware.apiClient.patch(`/speakers/${closestSpeaker.id}/`, {
+							shape: JSON.stringify(expandedShape.geometry),
+						});
+
+						console.error('Patch response:', patchResponse);
+						console.error('Closest speaker shape updated successfully');
+					} else {
+						console.error('Failed to expand closestSpeaker shape');
+					}
+				} else {
+					console.error('Invalid response or closestSpeaker data');
+				}
+			} catch (error) {
+				console.error('Error updating closest speaker shape:', error);
+			}
+    
 			if (!response) {
 				setStatus('error');
 			}
