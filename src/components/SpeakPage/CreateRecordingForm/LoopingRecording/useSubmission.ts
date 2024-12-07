@@ -9,7 +9,7 @@ import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 import { ITag } from 'roundware-web-framework/dist/types/index';
 
 // hook to handle saving of the recording to server
-export const useSubmission = ({ location, recordedAudioBlob }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null }) => {
+export const useSubmission = ({ location, recordedAudioBlob, closestSpeakerId }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null; closestSpeakerId: string | null; }) => {
 	const [status, setStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
 
 	const draftRecording = useRoundwareDraft();
@@ -90,6 +90,9 @@ export const useSubmission = ({ location, recordedAudioBlob }: { location: { lat
 			formData.append('file', recordedAudioBlob);
 			formData.append('attenuation_distance', '5');
 			formData.append('project_id', finalConfig.project.id.toString());
+			if (closestSpeakerId) {
+				formData.append('parents', closestSpeakerId);
+			}
 
 			const response: { uri: string } = await roundware.apiClient.post('/speakers/', formData, {
 				method: 'POST',

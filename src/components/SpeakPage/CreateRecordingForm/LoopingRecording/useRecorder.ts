@@ -41,8 +41,10 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 		if (typeof duration !== 'number') return;
 
 		loop.setMode('waiting-to-record');
+		setRecordedAudioBlob(null);
 
 		console.debug('Scheduling recording', loop.nextLoopPointAt.current, Date.now());
+		console.debug('Starting recording in', ((loop.nextLoopPointAt.current ?? 0) - Date.now()) / 1000 + 's');
 
 		setTimeout(
 			() => {
@@ -75,14 +77,18 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 				const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
 				setRecordedAudioBlob(audioBlob);
 				loop.stop();
-				loop.start(audioBlob);
+				loop.start('recording-playback', audioBlob);
+
+				// stop
+				stream.getTracks().forEach((track) => {
+					track.stop();
+				});
 			};
 
 			mediaRecorder.current.onstart = () => {
 				console.debug('Recording started');
 
-				loop.setMode('recording');
-				loop.start();
+				loop.start('recording');
 
 				if (!duration) return;
 				setTimeout(() => {

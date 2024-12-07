@@ -54,7 +54,7 @@ const LoopingRecordingForm = () => {
 									onClick={async () => {
 										const hasPermission = await recorder.checkMicrophonePermission();
 										if (!hasPermission) return;
-										loop.start();
+										loop.start('playing-speaker');
 									}}
 								>
 									START
