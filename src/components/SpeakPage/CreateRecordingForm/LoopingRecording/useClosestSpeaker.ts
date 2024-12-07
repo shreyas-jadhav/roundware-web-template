@@ -43,15 +43,18 @@ export const useClosestSpeaker = (
 		if (sts && sts.length > 0) {
 			const closestSpeaker = sts[0].speakerData;
 			console.log('Found closest speaker: ', closestSpeaker.id);
-			setSpeaker(closestSpeaker);
 
-			const speakerAudio = new Audio();
-			speakerAudio.src = closestSpeaker.uri;
-			speakerAudio.loop = true;
-			speakerAudio.addEventListener('loadedmetadata', () => {
-				setAudioDuration(speakerAudio.duration);
-				loop.setSpeakerUri(closestSpeaker.uri);
-			});
+			fetch(closestSpeaker.uri)
+				.then((response) => response.arrayBuffer())
+				.then((arrayBuffer) => {
+					loop.audioContext.current.decodeAudioData(arrayBuffer, (buffer) => {
+						loop.speakerAudioBuffer.current = buffer;
+						console.debug('speakerAudioBuffer', loop.speakerAudioBuffer.current);
+						setSpeaker(closestSpeaker);
+						loop.setIsLoading(false);
+						setAudioDuration(buffer.duration);
+					});
+				});
 		}
 	}, [lat, lng, roundware]);
 

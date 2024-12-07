@@ -11,12 +11,10 @@ export const useLoop = () => {
 	const recordedAudioSource = useRef<AudioBufferSourceNode | null>(null);
 
 	const [mode, setMode] = useState<'idle' | 'playing-speaker' | 'waiting-to-record' | 'recording' | 'recording-playback'>('idle');
-	console.debug({ mode });
+
 	const interval = useRef<NodeJS.Timer | null>(null);
 
 	const nextLoopPointAt = useRef<number | null>(null);
-
-	const [speakerUri, setSpeakerUri] = useState<string | null>(null);
 
 	const calculateNextPoint = () => {
 		if (!speakerAudioBuffer.current) return;
@@ -127,31 +125,16 @@ export const useLoop = () => {
 		}
 	}
 
-	useEffect(() => {
-		// fetch speaker uri, createBufferSource
-
-		if (speakerUri && !speakerAudioBuffer.current) {
-			fetch(speakerUri)
-				.then((response) => response.arrayBuffer())
-				.then((arrayBuffer) => {
-					audioContext.current.decodeAudioData(arrayBuffer, (buffer) => {
-						speakerAudioBuffer.current = buffer;
-						console.debug('speakerAudioBuffer', speakerAudioBuffer.current);
-						setIsLoading(false);
-					});
-				});
-		}
-	}, [speakerUri]);
-
 	return {
 		isLoading,
+		setIsLoading,
 		isStarted,
 		mode,
 		setMode,
 		start,
 		stop,
 		nextLoopPointAt,
-		setSpeakerUri,
+		speakerAudioBuffer,
 		audioContext,
 	};
 };
