@@ -1,4 +1,4 @@
-import { multiPolygon } from '@turf/helpers';
+import { Feature, multiPolygon, Polygon } from '@turf/helpers';
 import { circle, buffer } from '@turf/turf';
 import finalConfig from 'config';
 import { useRoundware, useRoundwareDraft } from 'hooks/index';
@@ -106,12 +106,12 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 			try {
 				if (response && closestSpeaker && closestSpeaker.shape) {
 					// Ensure closestSpeaker.shape is defined and valid
-					const expandedShape = buffer(closestSpeaker.shape, 10, { units: 'meters' });
+					const expandedShape = buffer(closestSpeaker.shape, 10, { units: 'meters' }) as Feature<Polygon>;
 
 					if (expandedShape) {
 						// Patch the closest speaker's shape
 						const patchResponse = await roundware.apiClient.patch(`/speakers/${closestSpeaker.id}/`, {
-							shape: JSON.stringify(expandedShape.geometry),
+							shape: multiPolygon([expandedShape.geometry.coordinates]).geometry,
 						});
 
 						console.error('Patch response:', patchResponse);
