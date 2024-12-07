@@ -131,7 +131,8 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 				return;
 			}
 
-			history.push(`/listen?sid=${response.id}`);
+			window.location.href = `/listen?latitude=${location.lat}&longitude=${location.lng}`;
+
 			setStatus('submitted');
 		}
 	}
