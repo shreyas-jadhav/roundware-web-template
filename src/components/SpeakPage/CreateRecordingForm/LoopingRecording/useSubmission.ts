@@ -24,7 +24,7 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 		// stop the audio
 
 		setStatus('submitting');
-		console.error("Speaker object received in useSubmission:", closestSpeaker);
+		console.error('Speaker object received in useSubmission:', closestSpeaker);
 
 		if (!finalConfig.speak.uploadAsSpeaker) {
 			// upload as ASSET:
@@ -96,13 +96,10 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 				formData.append('parents', closestSpeaker.id.toString());
 			}
 
-			const response: { uri: string } = await roundware.apiClient.post('/speakers/', formData, {
+			const response: { id: string } = await roundware.apiClient.post('/speakers/', formData, {
 				method: 'POST',
 				contentType: 'multipart/form-data',
 			});
-
-			history.push(`/listen`);
-			setStatus('submitted');
 
 			console.error('Response: ' + JSON.stringify(response, null, 2));
 
@@ -112,7 +109,6 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 					const expandedShape = buffer(closestSpeaker.shape, 10, { units: 'meters' });
 
 					if (expandedShape) {
-						
 						// Patch the closest speaker's shape
 						const patchResponse = await roundware.apiClient.patch(`/speakers/${closestSpeaker.id}/`, {
 							shape: JSON.stringify(expandedShape.geometry),
@@ -129,10 +125,14 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 			} catch (error) {
 				console.error('Error updating closest speaker shape:', error);
 			}
-    
+
 			if (!response) {
 				setStatus('error');
+				return;
 			}
+
+			history.push(`/listen?sid=${response.id}`);
+			setStatus('submitted');
 		}
 	}
 

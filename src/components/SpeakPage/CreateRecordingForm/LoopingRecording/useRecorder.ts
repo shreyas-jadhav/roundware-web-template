@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { useLoop } from './useLoop';
+import { createBlobFromAudioBuffer, trimAudioBuffer } from 'utils/index';
 
 export const useRecorder = ({ duration, loop }: { duration?: number; loop: ReturnType<typeof useLoop> }) => {
 	const mediaRecorder = useRef<MediaRecorder | null>(null);
-	const audioChunks = useRef<Blob[]>([]);
+
+	const audioChunk = useRef<Blob>();
 
 	const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
 
@@ -57,6 +59,7 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 	const startRecording = async () => {
 		try {
 			setRecordedAudioBlob(null);
+			audioChunk.current = undefined;
 
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
@@ -67,18 +70,36 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 			setRecorderStream(stream);
 
 			mediaRecorder.current = new MediaRecorder(stream);
-			audioChunks.current = [];
 
-			mediaRecorder.current.ondataavailable = (event) => {
-				audioChunks.current.push(event.data);
-			};
+			mediaRecorder.current.ondataavailable = async (event) => {
+				if (audioChunk.current) return;
+				stopRecording();
 
-			mediaRecorder.current.onstop = () => {
-				const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+				audioChunk.current = event.data;
+
+				console.log('Speaker Duration:', duration);
+
+				const audioBuffer = await loop.audioContext.current.decodeAudioData(await new Blob([event.data], { type: 'audio/wav' }).arrayBuffer());
+
+				if (!audioBuffer || !duration) throw new Error('Something went wrong while decoding audio data');
+
+				let adjustedBuffer = audioBuffer;
+
+				if (adjustedBuffer.duration > duration) {
+					const difference = adjustedBuffer.duration - duration;
+					// 5% from start, rest from end
+					adjustedBuffer = trimAudioBuffer(audioBuffer, difference * (10 / 100), audioBuffer.duration - difference * (90 / 100), loop.audioContext.current);
+					console.log('Trimmed audio buffer:', adjustedBuffer);
+				}
+
+				const audioBlob = createBlobFromAudioBuffer(adjustedBuffer);
+
 				setRecordedAudioBlob(audioBlob);
 				loop.stop();
 				loop.start('recording-playback', audioBlob);
+			};
 
+			mediaRecorder.current.onstop = () => {
 				// stop
 				stream.getTracks().forEach((track) => {
 					track.stop();
@@ -91,14 +112,12 @@ export const useRecorder = ({ duration, loop }: { duration?: number; loop: Retur
 				loop.start('recording');
 
 				if (!duration) return;
-				setTimeout(() => {
-					console.log('Stopping recording');
-					stopRecording();
-				}, duration * 1000);
 			};
 
 			loop.stop();
-			mediaRecorder.current.start();
+
+			console.log('Will be reocording for:', duration);
+			mediaRecorder.current.start(duration ? (duration + 0.1) * 1000 : undefined);
 		} catch (error) {
 			console.error('Error starting recording:', error);
 			setIsPermissionDenied(true);

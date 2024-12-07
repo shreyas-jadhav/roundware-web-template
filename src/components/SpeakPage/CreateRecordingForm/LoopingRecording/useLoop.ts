@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { trimAudioBuffer } from 'utils/index';
 
 export const useLoop = () => {
 	const audioContext = useRef(new AudioContext());
@@ -73,16 +74,13 @@ export const useLoop = () => {
 				if (!recordedAudioSource.current) return;
 				if (!speakerAudioBuffer.current) return;
 
+				console.table({
+					'speakerAudioBuffer.current.duration': speakerAudioBuffer.current.duration,
+					'adjustedBuffer.duration': buffer.duration,
+				});
+
 				recordedAudioSource.current.buffer = buffer;
 				recordedAudioSource.current.loop = true;
-
-				// trim the buffer to the duration of the speaker
-				const difference = buffer.duration - speakerAudioBuffer.current.duration;
-
-				if (difference > 0) {
-					recordedAudioSource.current.loopStart;
-					recordedAudioSource.current.loopEnd = buffer.duration - difference;
-				}
 
 				// gain
 				const recorderGain = audioContext.current.createGain();
@@ -124,6 +122,12 @@ export const useLoop = () => {
 			recordedAudioSource.current = null;
 		}
 	}
+
+	useEffect(() => {
+		return () => {
+			stop();
+		};
+	}, []);
 
 	return {
 		isLoading,
