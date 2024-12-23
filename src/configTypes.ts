@@ -76,6 +76,8 @@ export type IConfig = {
 		recordingMethod: 'standard' | 'looping';
 		/** upload as speaker */
 		uploadAsSpeaker: boolean;
+		/** base loop */
+		baseRecordingLoopSelectionMethod: 'all' | 'oldest';
 	};
 	/** config for map */
 	map: {

@@ -41,6 +41,7 @@ let config: IConfig = {
 		defaultSpeakTags: [],
 		recordingMethod: 'looping',
 		uploadAsSpeaker: true,
+		baseRecordingLoopSelectionMethod: 'all',
 	},
 
 	map: {

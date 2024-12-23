@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
-import { trimAudioBuffer } from 'utils/index';
+import { useEffect, useRef, useState } from 'react';
 
 export const useLoop = () => {
 	const audioContext = useRef(new AudioContext());

@@ -1,5 +1,5 @@
 import { useLocationFromQuery } from 'hooks/index';
-import { useClosestSpeaker } from './useClosestSpeaker';
+import { useBaseSpeakerAudio } from './useBaseSpeakerAudio';
 import { useLoop } from './useLoop';
 import { useRecorder } from './useRecorder';
 import { useSubmission } from './useSubmission';
@@ -13,7 +13,7 @@ export const useLoopingRecording = () => {
 	const loop = useLoop();
 
 	// automatically selects closest speaker to the location
-	const speaker = useClosestSpeaker(location.lat, location.lng, loop);
+	const speaker = useBaseSpeakerAudio(location.lat, location.lng, loop);
 
 	// hook to handle recording
 	const recorder = useRecorder({
@@ -32,7 +32,6 @@ export const useLoopingRecording = () => {
 		location,
 		recordedAudioBlob: recorder.recordedAudioBlob,
 		closestSpeaker: speaker.speaker,
-		
 	});
 
 	return {
