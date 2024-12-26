@@ -10,7 +10,7 @@ import { ITag } from 'roundware-web-framework/dist/types/index';
 import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
 
 // hook to handle saving of the recording to server
-export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null; closestSpeaker: ISpeakerData | null }) => {
+export const useSubmission = ({ location, recordedAudioBlob, baseSpeakers }: { location: { lat: number; lng: number }; recordedAudioBlob: Blob | null; baseSpeakers: ISpeakerData[] }) => {
 	const [status, setStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
 
 	const draftRecording = useRoundwareDraft();
@@ -24,7 +24,6 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 		// stop the audio
 
 		setStatus('submitting');
-		console.error('Speaker object received in useSubmission:', closestSpeaker);
 
 		if (!finalConfig.speak.uploadAsSpeaker) {
 			// upload as ASSET:
@@ -92,8 +91,8 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 			formData.append('file', recordedAudioBlob);
 			formData.append('attenuation_distance', '5');
 			formData.append('project_id', finalConfig.project.id.toString());
-			if (closestSpeaker) {
-				formData.append('parents', closestSpeaker.id.toString());
+			if (baseSpeakers.length > 0) {
+				formData.append('parents', baseSpeakers.map((s) => s.id).join(','));
 			}
 
 			const response: { id: string } = await roundware.apiClient.post('/speakers/', formData, {
@@ -104,21 +103,26 @@ export const useSubmission = ({ location, recordedAudioBlob, closestSpeaker }: {
 			console.error('Response: ' + JSON.stringify(response, null, 2));
 
 			try {
-				if (response && closestSpeaker && closestSpeaker.shape) {
-					// Ensure closestSpeaker.shape is defined and valid
-					const expandedShape = buffer(closestSpeaker.shape, 10, { units: 'meters' }) as Feature<Polygon>;
+				if (response && baseSpeakers.length > 0) {
+					await Promise.all(
+						baseSpeakers.map(async (s) => {
+							if (!s.shape) return;
+							// Ensure closestSpeaker.shape is defined and valid
+							const expandedShape = buffer(s.shape, 10, { units: 'meters' }) as Feature<Polygon>;
 
-					if (expandedShape) {
-						// Patch the closest speaker's shape
-						const patchResponse = await roundware.apiClient.patch(`/speakers/${closestSpeaker.id}/`, {
-							shape: multiPolygon([expandedShape.geometry.coordinates]).geometry,
-						});
+							if (expandedShape) {
+								// Patch the closest speaker's shape
+								const patchResponse = await roundware.apiClient.patch(`/speakers/${s.id}/`, {
+									shape: multiPolygon([expandedShape.geometry.coordinates]).geometry,
+								});
 
-						console.error('Patch response:', patchResponse);
-						console.error('Closest speaker shape updated successfully');
-					} else {
-						console.error('Failed to expand closestSpeaker shape');
-					}
+								console.error('Patch response:', patchResponse);
+								console.error('Closest speaker shape updated successfully');
+							} else {
+								console.error('Failed to expand closestSpeaker shape');
+							}
+						})
+					);
 				} else {
 					console.error('Invalid response or closestSpeaker data');
 				}

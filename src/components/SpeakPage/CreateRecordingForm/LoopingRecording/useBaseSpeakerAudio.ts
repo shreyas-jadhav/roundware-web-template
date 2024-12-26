@@ -1,8 +1,9 @@
 import { point } from '@turf/helpers';
+import finalConfig from 'config';
 import { useRoundware } from 'hooks/index';
-import { useState, useEffect } from 'react';
-import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
+import { useEffect, useState } from 'react';
 import { useLoop } from './useLoop';
+import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
 
 const getSpeakerAudioBuffer = async (uri: string, audioContext: AudioContext) => {
 	const response = await fetch(uri);
@@ -17,18 +18,19 @@ export const useBaseSpeakerAudio = (
 	loop: ReturnType<typeof useLoop>
 ):
 	| {
-			speaker: ISpeakerData;
+			baseSpeakers: ISpeakerData[];
 			duration: number;
 			isReady: true;
 	  }
 	| {
-			speaker: null;
+			baseSpeakers: null;
 			duration: null;
 			isReady: false;
 	  } => {
 	const { roundware } = useRoundware();
 
-	const [speaker, setSpeaker] = useState<ISpeakerData | null>(null);
+	const [baseSpeakers, setBaseSpeakers] = useState<ISpeakerData[]>([]);
+
 	const [duration, setAudioDuration] = useState<number | null>(null);
 
 	useEffect(() => {
@@ -49,7 +51,41 @@ export const useBaseSpeakerAudio = (
 		const sts = roundware.mixer.speakerTracks.filter((st) => {
 			return st.outerBoundaryContains(listenerPoint) || st.attenuationShapeContains(listenerPoint);
 		});
-		console.debug(`SpeakerTracks:`, sts);
+
+		let baseSpeakers =
+			finalConfig.speak.baseRecordingLoopSelectionMethod === 'all'
+				? sts
+				: (() => {
+						// map
+						const tree = new Map<
+							number,
+							{
+								children: Set<number>;
+								parents: Set<number>;
+							}
+						>();
+
+						sts.forEach((st) => {
+							tree.set(st.speakerData.id, {
+								children: 'children' in st.speakerData && Array.isArray(st.speakerData.children) ? new Set(st.speakerData.children) : new Set(),
+								parents: 'parents' in st.speakerData && Array.isArray(st.speakerData.parents) ? new Set(st.speakerData.parents) : new Set(),
+							});
+						});
+
+						// if there is not such parent, then remove that parent id from tree;
+						tree.forEach((value) => {
+							value.parents.forEach((parent) => {
+								if (!tree.has(parent)) {
+									value.parents.delete(parent);
+								}
+							});
+						});
+
+						// get the root nodes;
+						const roots = Array.from(tree.entries()).filter(([, value]) => value.parents.size === 0);
+
+						return roots.map(([id]) => sts.find((st) => st.speakerData.id === id)!);
+				  })();
 
 		(async () => {
 			const audioBuffers = await Promise.all(
@@ -76,22 +112,22 @@ export const useBaseSpeakerAudio = (
 			);
 
 			loop.speakerAudioBuffer.current = finalBufer;
-			if (sts.length > 0) setSpeaker(sts[0].speakerData);
+			setBaseSpeakers(baseSpeakers.map((s) => s.speakerData));
 			loop.setIsLoading(false);
 			setAudioDuration(finalBufer.duration);
 		})();
 	}, [lat, lng, roundware]);
 
-	if (speaker == null || duration == null) {
+	if (baseSpeakers.length === 0 || duration == null) {
 		return {
-			speaker: null,
+			baseSpeakers: null,
 			duration: null,
 			isReady: false,
 		};
 	}
-
+	console.debug('baseSpeakers', baseSpeakers);
 	return {
-		speaker,
+		baseSpeakers,
 		duration,
 		isReady: true,
 	};

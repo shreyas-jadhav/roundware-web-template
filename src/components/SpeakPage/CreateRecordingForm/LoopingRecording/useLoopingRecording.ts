@@ -31,7 +31,7 @@ export const useLoopingRecording = () => {
 	const submission = useSubmission({
 		location,
 		recordedAudioBlob: recorder.recordedAudioBlob,
-		closestSpeaker: speaker.speaker,
+		baseSpeakers: speaker.baseSpeakers || [],
 	});
 
 	return {
