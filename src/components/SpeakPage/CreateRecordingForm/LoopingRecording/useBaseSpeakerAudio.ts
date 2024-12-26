@@ -66,7 +66,9 @@ export const useBaseSpeakerAudio = (
 				(acc, { buffer, volume }) => {
 					const ratio = volume / totalVolume;
 					console.debug(`Mixing volume ${volume} buffer with ratio:`, ratio);
-					const mixed = mix(acc, buffer, ratio);
+					const mixed = mix(acc, buffer, (a: number, b: number) => {
+						return a * 1 + b * (ratio as number);
+					});
 					return mixed;
 				},
 				// create an empty buffer with the same length and sample rate as the first buffer
