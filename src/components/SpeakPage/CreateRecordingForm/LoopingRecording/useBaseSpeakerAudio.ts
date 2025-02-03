@@ -82,39 +82,44 @@ export const useBaseSpeakerAudio = (
 						});
 
 						// get the root nodes;
-						const roots = Array.from(tree.entries()).filter(([, value]) => value.parents.size === 0);
+						const root = tree.entries().find(([, rels]) => rels.parents.size === 0)?.[0];
 
-						return roots.map(([id]) => sts.find((st) => st.speakerData.id === id)!);
+						return [sts.find((st) => st.speakerData.id === root)!];
 				  })();
 
 		(async () => {
-			const audioBuffers = await Promise.all(
-				sts.map(async (st) => ({
-					buffer: await getSpeakerAudioBuffer(st.uri, loop.audioContext.current),
-					volume: st.calculateVolume(),
-				}))
-			);
+			let finalBuffer: AudioBuffer;
 
-			const totalVolume = audioBuffers.reduce((acc, { volume }) => acc + volume, 0);
+			if (baseSpeakers.length > 1) {
+				const audioBuffers = await Promise.all(
+					baseSpeakers.map(async (st) => ({
+						buffer: await getSpeakerAudioBuffer(st.uri, loop.audioContext.current),
+						volume: st.calculateVolume(),
+					}))
+				);
 
-			// mix the audio buffers based on volume of each speaker
-			const finalBufer = audioBuffers.reduce(
-				(acc, { buffer, volume }) => {
-					const ratio = volume / totalVolume;
-					console.debug(`Mixing volume ${volume} buffer with ratio:`, ratio);
-					const mixed = mix(acc, buffer, (a: number, b: number) => {
-						return a * 1 + b * (ratio as number);
-					});
-					return mixed;
-				},
-				// create an empty buffer with the same length and sample rate as the first buffer
-				loop.audioContext.current.createBuffer(audioBuffers[0].buffer.numberOfChannels, audioBuffers[0].buffer.length, audioBuffers[0].buffer.sampleRate)
-			);
+				const totalVolume = audioBuffers.reduce((acc, { volume }) => acc + volume, 0);
 
-			loop.speakerAudioBuffer.current = finalBufer;
+				// mix the audio buffers based on volume of each speaker
+				finalBuffer = audioBuffers.reduce(
+					(acc, { buffer, volume }) => {
+						const ratio = volume / totalVolume;
+						console.debug(`Mixing volume ${volume} buffer with ratio:`, ratio);
+						const mixed = mix(acc, buffer, (a: number, b: number) => {
+							return a * 1 + b * (ratio as number);
+						});
+						return mixed;
+					},
+					// create an empty buffer with the same length and sample rate as the first buffer
+					loop.audioContext.current.createBuffer(audioBuffers[0].buffer.numberOfChannels, audioBuffers[0].buffer.length, audioBuffers[0].buffer.sampleRate)
+				);
+			} else {
+				finalBuffer = await getSpeakerAudioBuffer(baseSpeakers[0].uri, loop.audioContext.current);
+			}
+			loop.speakerAudioBuffer.current = finalBuffer;
 			setBaseSpeakers(baseSpeakers.map((s) => s.speakerData));
 			loop.setIsLoading(false);
-			setAudioDuration(finalBufer.duration);
+			setAudioDuration(finalBuffer.duration);
 		})();
 	}, [lat, lng, roundware]);
 
