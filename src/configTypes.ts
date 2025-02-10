@@ -42,10 +42,10 @@ export type IConfig = {
 		autoplay: boolean;
 		/** config for speaker */
 		speaker: {
-			/** all the speaker should be in sync */
-			sync: boolean;
-			/** should the speaker prefetch audio; user might need to wait */
-			prefetch: boolean;
+			/** mode */
+			mode: 'prefetch-sync' | 'stream-sync' | 'prefetch' | 'stream' | `prefetch-sync-basePlusMax${number}Random`;
+			/** length of the speaker before looping back */
+			length?: number;
 			/** should the speaker loop */
 			loop: boolean;
 			/** acceptable delay between two speaker when they are in sync;
@@ -57,6 +57,7 @@ export type IConfig = {
 			 * value should be in ms
 			 */
 			syncCheckInterval: number;
+			replaceWithNoneProbability: number;
 		};
 
 		/** duration to skip when listen transport buttons are clicked */

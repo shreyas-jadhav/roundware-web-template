@@ -24,11 +24,11 @@ let config: IConfig = {
 		geoListenMode: 'device',
 		autoplay: false,
 		speaker: {
-			sync: true,
-			prefetch: true,
+			mode: 'prefetch-sync-basePlusMax5Random',
 			loop: true,
 			acceptableDelayMs: 50,
 			syncCheckInterval: 2500,
+			replaceWithNoneProbability: 0.3,
 		},
 
 		skipDuration: 5,

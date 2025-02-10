@@ -4,6 +4,8 @@ import { useRoundware } from 'hooks/index';
 import { useEffect, useState } from 'react';
 import { useLoop } from './useLoop';
 import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';
+import { VPTrack } from 'roundware-web-framework/dist/speaker/speaker_volume_processor';
+import { SpeakerTrack } from 'roundware-web-framework/dist/speaker/speaker_track';
 
 const getSpeakerAudioBuffer = async (uri: string, audioContext: AudioContext) => {
 	const response = await fetch(uri);
@@ -36,56 +38,28 @@ export const useBaseSpeakerAudio = (
 	useEffect(() => {
 		if (!roundware.speakers) return;
 
-		roundware.mixer.initializeSpeakers();
+		roundware.mixer.speakerEngine?.initializeSpeakers();
 
-		if (!roundware.mixer.speakerTracks) return;
+		if (!roundware.mixer.speakerEngine?.speakerTracks) return;
 
 		const listenerPoint = point([lng, lat]);
 
-		roundware.mixer.speakerTracks.forEach((speaker) => {
-			speaker.updateParams(false, {
-				listenerPoint,
-			});
+		roundware.mixer.speakerEngine?.updateParams(false, {
+			listenerPoint,
 		});
 
-		const sts = roundware.mixer.speakerTracks.filter((st) => {
+		const sts = roundware.mixer.speakerEngine?.speakerTracks?.filter((st) => {
 			return st.outerBoundaryContains(listenerPoint) || st.attenuationShapeContains(listenerPoint);
 		});
 
-		let baseSpeakers =
+		let baseSpeakers = (
 			finalConfig.speak.baseRecordingLoopSelectionMethod === 'all'
 				? sts
 				: (() => {
 						// map
-						const tree = new Map<
-							number,
-							{
-								children: Set<number>;
-								parents: Set<number>;
-							}
-						>();
-
-						sts.forEach((st) => {
-							tree.set(st.speakerData.id, {
-								children: 'children' in st.speakerData && Array.isArray(st.speakerData.children) ? new Set(st.speakerData.children) : new Set(),
-								parents: 'parents' in st.speakerData && Array.isArray(st.speakerData.parents) ? new Set(st.speakerData.parents) : new Set(),
-							});
-						});
-
-						// if there is not such parent, then remove that parent id from tree;
-						tree.forEach((value) => {
-							value.parents.forEach((parent) => {
-								if (!tree.has(parent)) {
-									value.parents.delete(parent);
-								}
-							});
-						});
-
-						// get the root nodes;
-						const root = tree.entries().find(([, rels]) => rels.parents.size === 0)?.[0];
-
-						return [sts.find((st) => st.speakerData.id === root)!];
-				  })();
+						return [roundware.mixer.speakerEngine?.volumeProcessor.findRoot(sts as VPTrack[])];
+				  })()
+		) as SpeakerTrack[];
 
 		(async () => {
 			let finalBuffer: AudioBuffer;
@@ -93,8 +67,8 @@ export const useBaseSpeakerAudio = (
 			if (baseSpeakers.length > 1) {
 				const audioBuffers = await Promise.all(
 					baseSpeakers.map(async (st) => ({
-						buffer: await getSpeakerAudioBuffer(st.uri, loop.audioContext.current),
-						volume: st.calculateVolume(),
+						buffer: await getSpeakerAudioBuffer((st as SpeakerTrack).uri, loop.audioContext.current),
+						volume: st.volumeByLocation(listenerPoint.geometry),
 					}))
 				);
 
