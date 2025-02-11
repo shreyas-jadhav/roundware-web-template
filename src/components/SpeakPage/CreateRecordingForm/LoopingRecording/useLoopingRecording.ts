@@ -1,4 +1,4 @@
-import { useLocationFromQuery } from 'hooks/index';
+import { useLocationFromQuery } from '@/hooks/index';
 import { useBaseSpeakerAudio } from './useBaseSpeakerAudio';
 import { useLoop } from './useLoop';
 import { useRecorder } from './useRecorder';

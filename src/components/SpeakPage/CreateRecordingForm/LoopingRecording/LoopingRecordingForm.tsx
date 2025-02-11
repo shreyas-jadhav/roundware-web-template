@@ -1,8 +1,8 @@
 import { ArrowForwardIos, Check, Mic } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, CardContent, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grow, Stack, Typography, useTheme } from '@mui/material';
-import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
-import LegalAgreementForm from 'components/LegalAgreementForm';
+import PermissionDeniedDialog from '@/components/elements/PermissionDeniedDialog';
+import LegalAgreementForm from '@/components/LegalAgreementForm';
 import { useState } from 'react';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { Prompt } from 'react-router';

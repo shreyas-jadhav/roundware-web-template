@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useLoop } from './useLoop';
-import { createBlobFromAudioBuffer, trimAudioBuffer } from 'utils/index';
+import { createBlobFromAudioBuffer, trimAudioBuffer } from '@/utils/index';
 
 export const useRecorder = ({ duration, loop }: { duration?: number; loop: ReturnType<typeof useLoop> }) => {
 	const mediaRecorder = useRef<MediaRecorder | null>(null);

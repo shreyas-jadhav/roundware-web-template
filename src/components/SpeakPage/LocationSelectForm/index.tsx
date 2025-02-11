@@ -11,8 +11,8 @@ import { RoundwareMapStyle } from '../../../styles/map-style';
 import ErrorDialog from '../../ErrorDialog';
 import LocationSelectMarker from './LocationSelectMarker';
 import PlacesAutocomplete from './PlacesAutocomplete';
-import config from 'config';
-import PermissionDeniedDialog from 'components/elements/PermissionDeniedDialog';
+import config from '@/config';
+import PermissionDeniedDialog from '@/components/elements/PermissionDeniedDialog';
 const getPosition = function (options?: PositionOptions): Promise<GeolocationPosition> {
 	return new Promise(function (resolve, reject) {
 		return navigator.geolocation.getCurrentPosition(resolve, reject, options);
@@ -124,7 +124,7 @@ const LocationSelectForm = () => {
 		}
 	};
 
-	if (!process.env.REACT_APP_GOOGLE_MAPS_API_KEY) {
+	if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
 		console.warn(`GOOGLE_MAPS_API_KEY was not provided! Script loading will fail.`);
 	}
 	return (
@@ -140,7 +140,7 @@ const LocationSelectForm = () => {
 				<Typography variant={'h4'} className={classes.locationHeaderLabel}>
 					Where are you recording today?
 				</Typography>
-				<LoadScript id='script-loader' googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''} libraries={gmapsLibraries as LoadScriptProps[`libraries`]}>
+				<LoadScript id='script-loader' googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''} libraries={gmapsLibraries as LoadScriptProps[`libraries`]}>
 					<PlacesAutocomplete />
 					<div className={classes.mapContainerDiv}>
 						<GoogleMap

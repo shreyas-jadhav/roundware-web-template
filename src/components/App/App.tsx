@@ -4,12 +4,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Stack from '@mui/material/Stack';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import PlatformMessage from 'components/PlatformMessage';
-import config from 'config';
+import PlatformMessage from '@/components/PlatformMessage';
+import config from '@/config';
 import React, { useState } from 'react';
 import Helmet from 'react-helmet';
 import { BrowserRouter, Link, NavLink, Route, Switch } from 'react-router-dom';
-import { getMessageOnLoad } from 'utils/platformMessages';
+import { getMessageOnLoad } from '@/utils/platformMessages';
 import favicon from '../../assets/favicon.png';
 import logoSmall from '../../assets/rw-full-logo-wb.png';
 import logoMinimal from '../../assets/rw-logo-minimal.png';
@@ -28,7 +28,7 @@ import ShareButton from './ShareButton';
 import ShareDialog from './ShareDialog';
 import SpeakButton from './SpeakButton';
 import useStyles from './styles';
-import ErrorBoundary from 'components/elements/ErrorBoundary';
+import ErrorBoundary from '@/components/elements/ErrorBoundary';
 
 export const App = () => {
 	const [theme] = useState(defaultTheme);
@@ -47,7 +47,7 @@ export const App = () => {
 					<link rel='icon' type='image/png' href={favicon} sizes='16x16' />
 					<meta name='theme-color' content={theme.palette.primary.main} />
 
-					<script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.REACT_APP_GOOGLE_ANALYTICS_ID}`}></script>
+					<script async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GOOGLE_ANALYTICS_ID}`}></script>
 					<script>
 						{`
 						window.dataLayer = window.dataLayer || [];
@@ -55,7 +55,7 @@ export const App = () => {
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', '${process.env.REACT_APP_GOOGLE_ANALYTICS_ID}');
+		  gtag('config', '${import.meta.env.VITE_GOOGLE_ANALYTICS_ID}');
 		  `}
 					</script>
 				</Helmet>

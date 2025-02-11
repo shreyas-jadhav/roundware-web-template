@@ -1,5 +1,5 @@
 import { makeStyles } from '@mui/styles';
-import config from 'config';
+import config from '@/config';
 import { defaultTheme } from '../../styles';
 
 const useStyles = makeStyles(() => {

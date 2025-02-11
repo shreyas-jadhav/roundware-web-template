@@ -1,5 +1,5 @@
-import configJSON from 'config.json';
-import { IConfig } from 'configTypes';
+import configJSON from '@/config.json';
+import { IConfig } from '@/configTypes';
 import { merge } from 'lodash';
 
 // this config object can be overridden by config.json

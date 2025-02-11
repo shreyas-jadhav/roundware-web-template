@@ -1,5 +1,7 @@
-import { GeoListenMode } from 'roundware-web-framework';
-import config from 'config';
+import * as Roundware from 'roundware-web-framework';
+
+import config from '@/config';
+const { GeoListenMode } = Roundware;
 export const wait = <PromiseType>(delay: number, value?: any): Promise<PromiseType> => new Promise((resolve) => setTimeout(resolve, delay, value));
 
 /** gets google map paths from geojson polygon
@@ -20,11 +22,11 @@ export const getDefaultListenMode = () => {
 	const isMobile = getWidth() < 600;
 
 	if (config.listen.geoListenMode == 'device') {
-		return isMobile ? GeoListenMode.AUTOMATIC : GeoListenMode.MANUAL;
+		return isMobile ? Roundware.GeoListenMode.AUTOMATIC : Roundware.GeoListenMode.MANUAL;
 	}
 	const listenMode = (config.listen.geoListenMode || ['map', 'walking'])[0];
-	if (listenMode == 'map') return GeoListenMode.MANUAL;
-	return GeoListenMode.AUTOMATIC;
+	if (listenMode == 'map') return Roundware.GeoListenMode.MANUAL;
+	return Roundware.GeoListenMode.AUTOMATIC;
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#getting_a_random_number_between_two_values

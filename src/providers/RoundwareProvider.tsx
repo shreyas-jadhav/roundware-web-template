@@ -1,7 +1,7 @@
 import moment from 'moment';
 import * as React from 'react';
 import { useEffect, useMemo, useReducer, useState } from 'react';
-import { GeoListenMode, Roundware } from 'roundware-web-framework';
+import * as Roundware from 'roundware-web-framework';
 import { Coordinates, GeoListenModeType } from 'roundware-web-framework/dist/types';
 import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 import { IRoundwareConstructorOptions } from 'roundware-web-framework/dist/types/roundware';
@@ -10,18 +10,18 @@ import useDebounce from '../hooks/useDebounce';
 import { useDeviceID } from '../hooks/useDeviceID';
 import { ITagLookup } from '../types';
 
-import config from 'config';
+import config from '@/config';
 
 interface PropTypes {
 	children: React.ReactNode;
 }
 
 const RoundwareProvider = (props: PropTypes) => {
-	const [roundware, setRoundware] = useState<Roundware>({
+	const [roundware, setRoundware] = useState<Roundware.Roundware>({
 		uiConfig: {
 			speak: [],
 		},
-	} as unknown as Roundware);
+	} as unknown as Roundware.Roundware);
 	const [assetsReady, setAssetsReady] = useState<IRoundwareContext[`assetsReady`]>(false);
 	const [beforeDateFilter, setBeforeDateFilter] = useState<IRoundwareContext[`beforeDateFilter`]>(new Date());
 	const [afterDateFilter, setAfterDateFilter] = useState<IRoundwareContext[`afterDateFilter`]>(null);
@@ -205,7 +205,7 @@ const RoundwareProvider = (props: PropTypes) => {
 			deviceId: deviceId,
 			serverUrl: server_url,
 			projectId: project_id,
-			geoListenMode: GeoListenMode.DISABLED,
+			geoListenMode: Roundware.GeoListenMode.DISABLED,
 			speakerFilters: { activeyn: true },
 			assetFilters: { submitted: true },
 			listenerLocation: initial_loc,
@@ -215,7 +215,7 @@ const RoundwareProvider = (props: PropTypes) => {
 			keepPausedAssets: config.listen.keepPausedAssets == true,
 			speakerConfig: config.listen.speaker,
 		};
-		const roundware = new Roundware(roundwareOptions);
+		const roundware = new Roundware.Roundware(roundwareOptions);
 
 		roundware.connect().then(() => {
 			// set the initial listener location to the project default
@@ -238,19 +238,19 @@ const RoundwareProvider = (props: PropTypes) => {
 		}
 	}, [roundware?.project]);
 
-	const geoListenMode = (roundware?.mixer && roundware?.mixer?.mixParams?.geoListenMode) || GeoListenMode?.DISABLED;
+	const geoListenMode = (roundware?.mixer && roundware?.mixer?.mixParams?.geoListenMode) || Roundware.GeoListenMode?.DISABLED;
 	const setGeoListenMode = (modeName: GeoListenModeType) => {
 		roundware.enableGeolocation(modeName);
 		let prom: Promise<Coordinates | void>;
 		// console.log(`roundware.mixer.mixParams.geoListenMode: ${roundware.mixer.mixParams.geoListenMode}`);
-		if (modeName === GeoListenMode.AUTOMATIC) {
+		if (modeName === Roundware.GeoListenMode.AUTOMATIC) {
 			if (roundware.mixer) {
 				roundware.mixer.updateParams({
 					maxDist: roundware.project.recordingRadius,
 					recordingRadius: roundware.project.recordingRadius,
 				});
 			}
-		} else if (modeName === GeoListenMode.MANUAL) {
+		} else if (modeName === Roundware.GeoListenMode.MANUAL) {
 			// set maxDist to value calculated from range circle overlay
 			prom = new Promise<void>((resolve, reject) => {
 				resolve();

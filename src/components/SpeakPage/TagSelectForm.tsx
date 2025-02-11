@@ -12,7 +12,7 @@ import { generatePath, useHistory } from 'react-router-dom';
 import { useRoundware, useRoundwareDraft } from '../../hooks';
 import { IMatch } from '../../types';
 import { getRandomArbitrary, wait } from '../../utils';
-import config from 'config';
+import config from '@/config';
 import { ArrowForwardIosRounded, Iron } from '@mui/icons-material';
 const useStyles = makeStyles((theme) => {
 	return {

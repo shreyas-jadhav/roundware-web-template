@@ -1,10 +1,10 @@
 import { Circle, Marker, Polygon } from '@react-google-maps/api';
 import { Clusterer } from '@react-google-maps/marker-clusterer';
-import finalConfig from 'config';
+import finalConfig from '@/config';
 import React, { useMemo } from 'react';
 import { IAssetData } from 'roundware-web-framework/dist/types/asset';
 import { OverlappingMarkerSpiderfier } from 'ts-overlapping-marker-spiderfier';
-import { polygonToGoogleMapPaths } from 'utils';
+import { polygonToGoogleMapPaths } from '@/utils';
 import marker2 from '../../../../assets/marker-secondary.svg';
 import marker from '../../../../assets/marker.svg';
 import { useRoundware } from '../../../../hooks';
@@ -48,24 +48,22 @@ const AssetMarker = ({ asset, clusterer, oms }: AssetMarkerProps) => {
 				<AssetInfoWindow asset={asset} />
 			</Marker>
 
-			{finalConfig.map.assetDisplay === 'circle' &&
-				<Circle center={position} radius={roundware.project.recordingRadius} options={{ strokeColor: '#000000', strokeOpacity: 0.8, strokeWeight: 2, fillOpacity: 0.1 }} />
-			}
+			{finalConfig.map.assetDisplay === 'circle' && <Circle center={position} radius={roundware.project.recordingRadius} options={{ strokeColor: '#000000', strokeOpacity: 0.8, strokeWeight: 2, fillOpacity: 0.1 }} />}
 
-			{finalConfig.map.assetDisplay === 'polygon' && asset.shape &&
-				<Polygon paths={
-					// ? do we need to center the polygon to asset position? or use the coordinates from polygon as is (like speakers) 
-					polygonToGoogleMapPaths(asset.shape)
-
-				}
-
+			{finalConfig.map.assetDisplay === 'polygon' && asset.shape && (
+				<Polygon
+					paths={
+						// ? do we need to center the polygon to asset position? or use the coordinates from polygon as is (like speakers)
+						polygonToGoogleMapPaths(asset.shape)
+					}
 					options={{
 						fillOpacity: 0.1,
 						strokeColor: '#000000',
 						strokeOpacity: 0.8,
 						strokeWeight: 2,
 					}}
-				/>}
+				/>
+			)}
 		</div>
 	);
 };

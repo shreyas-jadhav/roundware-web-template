@@ -1,15 +1,13 @@
+import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import ActionButton from './ActionButton';
-import React, { Fragment } from 'react';
-import { makeStyles } from '@mui/styles';
 import { useRoundware } from '../../hooks';
-import Container from '@mui/material/Container';
+import ActionButton from './ActionButton';
 
+import config from '@/config';
+import * as Roundware from 'roundware-web-framework';
 import banner from '../../assets/rw-icon-cluster.png';
-import { GeoListenMode } from 'roundware-web-framework';
 import useStyles from './styles';
-import config from 'config';
 
 export const LandingPage = () => {
 	const { roundware, forceUpdate } = useRoundware();
@@ -48,7 +46,7 @@ export const LandingPage = () => {
 								onClick={() => {
 									if (!config.listen.autoplay) return;
 									if (!roundware.mixer || !roundware.mixer?.playlist) {
-										roundware?.activateMixer({ geoListenMode: GeoListenMode.MANUAL }).then(() => {
+										roundware?.activateMixer({ geoListenMode: Roundware.Roundware.GeoListenMode.MANUAL }).then(() => {
 											if (roundware && roundware.uiConfig && roundware.uiConfig.listen && roundware.uiConfig.listen[0]) {
 												const listen_tags = roundware.uiConfig.listen[0].display_items.map((i) => i.tag_id);
 												roundware.mixer.updateParams({

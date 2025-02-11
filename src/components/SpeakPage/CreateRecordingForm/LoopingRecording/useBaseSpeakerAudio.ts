@@ -1,6 +1,6 @@
 import { point } from '@turf/helpers';
-import finalConfig from 'config';
-import { useRoundware } from 'hooks/index';
+import finalConfig from '@/config';
+import { useRoundware } from '@/hooks/index';
 import { useEffect, useState } from 'react';
 import { useLoop } from './useLoop';
 import { ISpeakerData } from 'roundware-web-framework/dist/types/speaker';

@@ -1,7 +1,7 @@
 import { Mic } from '@mui/icons-material';
 import { Button, Dialog, DialogActions, DialogContent } from '@mui/material';
 import { point } from '@turf/helpers';
-import { useRoundware } from 'hooks/index';
+import { useRoundware } from '@/hooks/index';
 import { useState } from 'react';
 
 const AddLoopVoiceButton = () => {

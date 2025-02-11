@@ -1,7 +1,7 @@
 import { Feature, multiPolygon, Polygon } from '@turf/helpers';
 import { circle, buffer } from '@turf/turf';
-import finalConfig from 'config';
-import { useRoundware, useRoundwareDraft } from 'hooks/index';
+import finalConfig from '@/config';
+import { useRoundware, useRoundwareDraft } from '@/hooks/index';
 import moment from 'moment';
 import { useState } from 'react';
 import { useHistory } from 'react-router';
