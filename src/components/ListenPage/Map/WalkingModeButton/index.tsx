@@ -10,7 +10,7 @@ import config from '@/config';
 import { useURLSync } from '@/context/URLContext';
 import { isEqual } from 'lodash';
 import { useEffect, useState } from 'react';
-import * as Roundware from 'roundware-web-framework';
+import { GeoListenMode } from 'roundware-web-framework/dist/index';
 import { useRoundware } from '../../../../hooks';
 import messages from '../../../../locales/en_US.json';
 import ListenerLocationMarker from './ListenerLocationMarker';
@@ -96,7 +96,7 @@ const walkingModeButton = () => {
 		// enable map panning
 		map.setOptions({ gestureHandling: 'cooperative' });
 		// stop listening for location updates
-		setGeoListenMode(Roundware.GeoListenMode.MANUAL);
+		setGeoListenMode(GeoListenMode.MANUAL);
 		// update text instructions?
 		roundware.events?.logEvent(`change_listen_mode`, {
 			data: `listen_mode: map`,
@@ -114,7 +114,7 @@ const walkingModeButton = () => {
 		// zoom in
 		map.setZoom(config.map.zoom.walking);
 		// determine user location and listen for updates
-		setGeoListenMode(Roundware.GeoListenMode.AUTOMATIC);
+		setGeoListenMode(GeoListenMode.AUTOMATIC);
 		roundware.events?.logEvent(`change_listen_mode`, {
 			data: `listen_mode: walking`,
 		});
@@ -201,9 +201,9 @@ const walkingModeButton = () => {
 
 	const toggleWalkingMode = async () => {
 		setBusy(true);
-		if (geoListenMode === Roundware.GeoListenMode.AUTOMATIC && map !== null) {
+		if (geoListenMode === GeoListenMode.AUTOMATIC && map !== null) {
 			enterMapMode();
-		} else if ([Roundware.GeoListenMode.MANUAL, Roundware.GeoListenMode.DISABLED].includes(geoListenMode) && map !== null) {
+		} else if ([GeoListenMode.MANUAL, GeoListenMode.DISABLED].includes(geoListenMode) && map !== null) {
 			await enterWalkingMode();
 		}
 		if (roundware.mixer) {
@@ -228,10 +228,10 @@ const walkingModeButton = () => {
 					<Button onClick={() => setWalkingModeStatus('')}>OK</Button>
 				</DialogActions>
 			</Dialog>
-			<Button title={geoListenMode == Roundware.GeoListenMode.AUTOMATIC ? `Enter Map Mode` : `Enter Walking Mode`} className={clsx(classes.walkingModeButton, displayListenModeButton ? null : classes.hidden)} color='primary' disabled={busy} onClick={toggleWalkingMode}>
-				{geoListenMode === Roundware.GeoListenMode.AUTOMATIC ? <MapIcon fontSize='large' /> : <DirectionsWalkIcon fontSize='large' />}
+			<Button title={geoListenMode == GeoListenMode.AUTOMATIC ? `Enter Map Mode` : `Enter Walking Mode`} className={clsx(classes.walkingModeButton, displayListenModeButton ? null : classes.hidden)} color='primary' disabled={busy} onClick={toggleWalkingMode}>
+				{geoListenMode === GeoListenMode.AUTOMATIC ? <MapIcon fontSize='large' /> : <DirectionsWalkIcon fontSize='large' />}
 			</Button>
-			{geoListenMode === Roundware.GeoListenMode.AUTOMATIC ? <ListenerLocationMarker /> : null}
+			{geoListenMode === GeoListenMode.AUTOMATIC ? <ListenerLocationMarker /> : null}
 		</div>
 	);
 };

@@ -6,10 +6,11 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Snackbar, { SnackbarProps } from '@mui/material/Snackbar';
 import { useEffect, useState } from 'react';
-import * as Roundware from 'roundware-web-framework';
+
 import { useRoundware } from '../../hooks';
 import finalConfig from '@/config';
 import { IconButton } from '@mui/material';
+import { GeoListenMode } from 'roundware-web-framework/dist/index';
 
 const RoundwareMixerControl = () => {
 	const { roundware, forceUpdate } = useRoundware();
@@ -25,7 +26,7 @@ const RoundwareMixerControl = () => {
 
 	useEffect(() => {
 		if (roundware?.mixer) {
-			roundware.activateMixer({ geoListenMode: Roundware.GeoListenMode.MANUAL }).then(() => {
+			roundware.activateMixer({ geoListenMode: GeoListenMode.MANUAL }).then(() => {
 				if (roundware && roundware.uiConfig && roundware.uiConfig.listen && roundware.uiConfig.listen[0]) {
 					const listen_tags = roundware.uiConfig.listen[0].display_items.map((i) => i.tag_id);
 					roundware.mixer.updateParams({
@@ -47,7 +48,7 @@ const RoundwareMixerControl = () => {
 	}, [roundware]);
 
 	function seek(offset: number): void {
-		roundware.mixer.speakerTracks?.forEach((s) => {
+		roundware.mixer.speakerEngine?.speakerTracks?.forEach((s) => {
 			const currentTime = s.player.audio.currentTime;
 			let newTime = currentTime + offset;
 
@@ -81,7 +82,7 @@ const RoundwareMixerControl = () => {
 			<Button
 				onClick={() => {
 					if (!roundware.mixer || !roundware.mixer?.playlist) {
-						roundware.activateMixer({ geoListenMode: Roundware.GeoListenMode.MANUAL }).then(() => {
+						roundware.activateMixer({ geoListenMode: GeoListenMode.MANUAL }).then(() => {
 							if (roundware && roundware.uiConfig && roundware.uiConfig.listen && roundware.uiConfig.listen[0]) {
 								const listen_tags = roundware.uiConfig.listen[0].display_items.map((i) => i.tag_id);
 								roundware.mixer.updateParams({

@@ -1,5 +1,7 @@
 // types for config file
 
+import { SpeakerConfig } from 'roundware-web-framework';
+
 export type IAssetCardConfig = {
 	/** available */
 	available: ('date' | 'tags' | 'description' | 'audio' | 'photo' | 'text' | 'actions')[];
@@ -41,24 +43,7 @@ export type IConfig = {
 		/** clicking the 'Listen' button automatically starts the stream */
 		autoplay: boolean;
 		/** config for speaker */
-		speaker: {
-			/** mode */
-			mode: 'prefetch-sync' | 'stream-sync' | 'prefetch' | 'stream' | `prefetch-sync-basePlusMax${number}Random`;
-			/** length of the speaker before looping back */
-			length?: number;
-			/** should the speaker loop */
-			loop: boolean;
-			/** acceptable delay between two speaker when they are in sync;
-			 * smaller the value, more accurate the sync
-			 */
-			acceptableDelayMs: number;
-			/** interval at which the speaker should check if they are in sync
-			 * smaller the value, more performance intensive,
-			 * value should be in ms
-			 */
-			syncCheckInterval: number;
-			replaceWithNoneProbability: number;
-		};
+		speaker: SpeakerConfig;
 
 		/** duration to skip when listen transport buttons are clicked */
 		skipDuration: number;

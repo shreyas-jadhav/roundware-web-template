@@ -29,6 +29,7 @@ let config: IConfig = {
 			acceptableDelayMs: 50,
 			syncCheckInterval: 2500,
 			replaceWithNoneProbability: 0.3,
+			lengths: [1 / 8, 2 / 8],
 		},
 
 		skipDuration: 5,

@@ -5,9 +5,10 @@ import { useRoundware } from '../../hooks';
 import ActionButton from './ActionButton';
 
 import config from '@/config';
-import * as Roundware from 'roundware-web-framework';
+
 import banner from '../../assets/rw-icon-cluster.png';
 import useStyles from './styles';
+import { GeoListenMode } from 'roundware-web-framework/dist/index';
 
 export const LandingPage = () => {
 	const { roundware, forceUpdate } = useRoundware();
@@ -46,7 +47,7 @@ export const LandingPage = () => {
 								onClick={() => {
 									if (!config.listen.autoplay) return;
 									if (!roundware.mixer || !roundware.mixer?.playlist) {
-										roundware?.activateMixer({ geoListenMode: Roundware.Roundware.GeoListenMode.MANUAL }).then(() => {
+										roundware?.activateMixer({ geoListenMode: GeoListenMode.MANUAL }).then(() => {
 											if (roundware && roundware.uiConfig && roundware.uiConfig.listen && roundware.uiConfig.listen[0]) {
 												const listen_tags = roundware.uiConfig.listen[0].display_items.map((i) => i.tag_id);
 												roundware.mixer.updateParams({

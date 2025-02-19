@@ -3,8 +3,8 @@ import { makeStyles, useTheme } from '@mui/styles';
 import { useGoogleMap } from '@react-google-maps/api';
 import React, { useEffect, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
-import * as Roundware from 'roundware-web-framework';
-import { Coordinates } from 'roundware-web-framework/dist/types';
+
+import { Coordinates, GeoListenMode } from 'roundware-web-framework/dist/index';
 import { useRoundware } from '../../../hooks';
 import Crosshair from './Crosshair';
 
@@ -97,12 +97,12 @@ const RangeCircleOverlay = ({ updateLocation }: { updateLocation: (newLocation: 
 			// set listening range to project recordingRadius when in walking mode
 			// set listening range to overlay circle when in map mode
 			if (roundware.mixer) {
-				if (geoListenMode === Roundware.GeoListenMode.AUTOMATIC) {
+				if (geoListenMode === GeoListenMode.AUTOMATIC) {
 					roundware.mixer.updateParams({
 						maxDist: roundware.project.recordingRadius,
 						recordingRadius: roundware.project.recordingRadius,
 					});
-				} else if (geoListenMode === Roundware.GeoListenMode.MANUAL) {
+				} else if (geoListenMode === GeoListenMode.MANUAL) {
 					roundware.mixer.updateParams({
 						maxDist: newRadius,
 						recordingRadius: newRadius,
@@ -118,7 +118,7 @@ const RangeCircleOverlay = ({ updateLocation }: { updateLocation: (newLocation: 
 	}, [map, width, isPlaying]);
 
 	return (
-		<Box className={classes.circleOverlay} style={{ visibility: geoListenMode === Roundware.GeoListenMode.MANUAL && isPlaying ? 'inherit' : 'hidden' }}>
+		<Box className={classes.circleOverlay} style={{ visibility: geoListenMode === GeoListenMode.MANUAL && isPlaying ? 'inherit' : 'hidden' }}>
 			<div ref={observe} className={classes.circle} />
 			<Crosshair />
 		</Box>
